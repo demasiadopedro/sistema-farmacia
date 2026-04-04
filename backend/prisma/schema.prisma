@@ -1,0 +1,113 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model dispensacao {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
+  quantidade_entregue Int // Quantos saíram do estoque DE FATO
+  proxima_retirada    DateTime? @db.Date // Para a Busca Ativa
+
+  id_prescricao String? @db.Uuid
+  id_usuario    String? @db.Uuid // O farmacêutico/técnico que entregou
+
+  prescricao prescricao? @relation(fields: [id_prescricao], references: [id])
+  usuario    usuario?    @relation(fields: [id_usuario], references: [id])
+  pacientes  paciente[]
+}
+
+model estoque {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lote             String?
+  quantidade       Int            @default(0) // O QUE TEM NA PRATELEIRA
+  data_de_validade DateTime?      @db.Date
+  id_medicamento   String?        @db.Uuid
+  id_unidade_saude String?        @db.Uuid
+  medicamento      medicamento?   @relation(fields: [id_medicamento], references: [id])
+  unidade_saude    unidade_saude? @relation(fields: [id_unidade_saude], references: [id])
+}
+
+model prescricao {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  data_receita         DateTime @default(now()) @db.Date
+  uso_continuo         Boolean  @default(false) // Extraído do PEC (Crucial para Hiperdia)
+  receita_externa      Boolean  @default(false) // Extraído do PEC
+  via_administracao    String? // Extraído do PEC (Ex: Via Oral)
+  quantidade_receitada Int // Extraído do PEC (Ex: 21)
+
+  id_medicamento String? @db.Uuid
+  id_paciente    String? @db.Uuid
+
+  medicamento  medicamento?  @relation(fields: [id_medicamento], references: [id])
+  paciente     paciente?     @relation(fields: [id_paciente], references: [id])
+  dispensacoes dispensacao[] // Uma receita de uso contínuo gera várias entregas
+}
+
+model medicamento {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome               String?
+  forma_farmaceutica String?
+  categoria          String?
+  // data_de_validade DateTime?     @db.Date
+  // dispensacao      dispensacao[]
+  estoque            estoque[]
+  prescricoes        prescricao[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model microarea {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome             String
+  unidade_saude_id String?        @db.Uuid
+  unidade_saude    unidade_saude? @relation(fields: [unidade_saude_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  paciente         paciente[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model paciente {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome               String?
+  data_de_nascimento DateTime?    @db.Date
+  cpf                String       @unique @db.VarChar(11)
+  cns                String       @unique @db.VarChar(15)
+  telefone           String?      @db.VarChar(14)
+  endereco           String?
+  condicao           String?
+  sexo               String?
+  microarea_id       String?      @db.Uuid
+  retiradas          String?      @db.Uuid
+  microarea          microarea?   @relation(fields: [microarea_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dispensacao        dispensacao? @relation(fields: [retiradas], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prescricaos        prescricao[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model unidade_saude {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome      String
+  CEP       Int?
+  numero_edificio Int?
+  cnes      String      @unique
+  estoque   estoque[]
+  microarea microarea[]
+  usuario   usuario[]
+}
+
+model usuario {
+  id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cpf                   String?        @db.VarChar(11)
+  nome                  String?
+  email                 String?
+  password              String?
+  atribuicao            String?
+  comprovante           String?
+  id_unidade_pertecente String?        @db.Uuid
+  unidade_saude         unidade_saude? @relation(fields: [id_unidade_pertecente], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dispensacaos          dispensacao[]
+}
