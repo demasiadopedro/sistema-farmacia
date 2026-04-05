@@ -3,6 +3,7 @@ import { UnidadeService } from '../src/unidade/unidade.service';
 import { CreateUnidadeDto } from '../src/unidade/dto/create-unidade.dto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateUnidadeDto } from '../src/unidade/dto/update-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('Unidade Service', () => {
 	let unidadeService: UnidadeService;
@@ -76,6 +77,45 @@ describe('Unidade Service', () => {
 			expect(findManySpy).toHaveBeenCalledWith();
 			expect(resultado).toEqual(listaUnidades);
 		});
+
+		it('deve chamar uma unidade', async () => {
+			const unidadeExemplo: CreateUnidadeDto = {
+				nome: 'USF FATIMA',
+				CEP: 12345678, // ou undefined, se opcional
+				numero_edificio: 1536, // ou undefined
+				cnes: '1356677',
+			};
+
+			const unidadeCriada = { id: '1', ...unidadeExemplo };
+			const findUniqueSpy = jest.spyOn(
+				prismaService.unidade_saude,
+				'findUnique',
+			);
+
+			findUniqueSpy.mockResolvedValue(unidadeCriada);
+
+			const resultado = await unidadeService.buscarUnidade('1');
+
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: '1' } });
+			expect(resultado).toEqual(unidadeCriada);
+		});
+
+		it('deve falhar ao buscar uma unidad', async () => {
+			const findUniqueSpy = jest.spyOn(
+				prismaService.unidade_saude,
+				'findUnique',
+			);
+
+			findUniqueSpy.mockResolvedValue(null);
+
+			await expect(unidadeService.buscarUnidade('1')).rejects.toThrow(
+				NotFoundException,
+			);
+
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: '1' } });
+		});
 	});
 
 	describe('delete', () => {
@@ -102,6 +142,25 @@ describe('Unidade Service', () => {
 			});
 			expect(deleteSpy).toHaveBeenCalledTimes(1);
 			expect(deleteSpy).toHaveBeenCalledWith({ where: { id: '1' } });
+		});
+		it('deve falhar ao apagar', async () => {
+			const findUniqueSpy = jest.spyOn(
+				prismaService.unidade_saude,
+				'findUnique',
+			);
+			const erroSpy = jest.spyOn(unidadeService, 'throwNotFound');
+			findUniqueSpy.mockResolvedValue(null);
+
+			try {
+				await unidadeService.deleteUnidade('2');
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			} catch (error) {
+				// esperado, não faz nada
+			}
+
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: '2' } });
+			expect(erroSpy).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -151,6 +210,27 @@ describe('Unidade Service', () => {
 
 			// 3. Verifica se o serviço retornou a unidade atualizada
 			expect(resultado).toEqual(unidadeAtualizada);
+		});
+
+		it('deve falhar ao atualizar', async () => {
+			const atualizacaoNome: UpdateUnidadeDto = {
+				nome: 'USF de pindamonhagaba',
+			};
+			const findUniqueSpy = jest.spyOn(
+				prismaService.unidade_saude,
+				'findUnique',
+			);
+			const erroSpy = jest.spyOn(unidadeService, 'throwNotFound');
+			findUniqueSpy.mockResolvedValue(null);
+
+			try {
+				await unidadeService.updateUnidade('2', atualizacaoNome);
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
+			} catch (error) {}
+
+			expect(findUniqueSpy).toHaveBeenCalledTimes(1);
+			expect(findUniqueSpy).toHaveBeenCalledWith({ where: { id: '2' } });
+			expect(erroSpy).toHaveBeenCalledTimes(1);
 		});
 	});
 });
