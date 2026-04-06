@@ -1,8 +1,19 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+	constructor() {
+		// 1. Criamos o adaptador com a URL do banco
+		const adapter = new PrismaPg({
+			connectionString: process.env.DATABASE_URL,
+		});
+
+		// 2. Passamos o adaptador para o PrismaClient via super()
+		super({ adapter });
+	}
+
 	async onModuleInit() {
 		await this.$connect();
 	}

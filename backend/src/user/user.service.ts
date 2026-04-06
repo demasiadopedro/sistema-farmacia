@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { usuario } from '../../generated/prisma/client';
+import { UpdatePatientDto } from '../patient/dto/updatePatient.dto';
 
 @Injectable()
 export class UserService {
@@ -10,13 +11,14 @@ export class UserService {
 	throwNotFound(): never {
 		throw new NotFoundException('Nao Foi possivel encontrar');
 	}
+
 	async createUser(createUserDto: CreateUserDto): Promise<usuario> {
 		// 1. Verificar se a unidade existe
 		const unidade = await this.prisma.unidade_saude.findUnique({
 			where: { id: createUserDto.id_unidade },
 		});
 		if (!unidade) {
-			throw new Error('Unidade não encontrada');
+			throw new Error('Unidade atrelada ao usuario nao existe');
 		}
 
 		// 2. Gerar hash da senha
@@ -53,7 +55,26 @@ export class UserService {
 	//   return `This action updates a #${id} user`;
 	// }
 
-	deleteUser(id: string) {
-		return `This action removes a #${id} user`;
+	async deleteUser(id: string) {
+		const busca = { where: { id: id } };
+		const usuario = await this.prisma.usuario.findUnique(busca);
+		if (!usuario) this.throwNotFound();
+		return this.prisma.usuario.delete({ where: { id: id } });
 	}
+
+	async updateUser(id: string, updateUserDto: UpdatePatientDto) {
+		const busca = { where: { id: id } };
+		const usuario = await this.prisma.usuario.findUnique(busca);
+		if (!usuario) this.throwNotFound();
+		return this.prisma.usuario.update({
+			where: { id: id },
+			data: updateUserDto,
+		});
+	}
+
+	// async verificaExistencia(id: string) {
+	// 	const busca = { where: { id: id } };
+	// 	const usuario = await this.prisma.usuario.findUnique(busca);
+	// 	if (!usuario) this.throwNotFound();
+	// }
 }
