@@ -45,11 +45,6 @@ export class UnidadeService {
 		await this.prisma.unidade_saude.delete({ where: { id: idParam } });
 	}
 
-	// async verificaExistencia(id: string) {
-	// 	const unidade = await this.buscarUnidade(id);
-	// 	if (!unidade) this.throwNotFound();
-	// }
-
 	async updateUnidade(id: string, updateUnidade: UpdateUnidadeDto) {
 		const unidade = await this.buscarUnidade(id);
 		if (!unidade) this.throwNotFound();

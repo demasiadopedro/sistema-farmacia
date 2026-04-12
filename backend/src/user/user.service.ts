@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { usuario } from '../../generated/prisma/client';
-import { UpdatePatientDto } from '../patient/dto/updatePatient.dto';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -17,7 +17,6 @@ export class UserService {
 	}
 
 	async createUser(createUserDto: CreateUserDto): Promise<usuario> {
-		// 1. Verificar se a unidade existe
 		const unidade = await this.prisma.unidade_saude.findUnique({
 			where: { id: createUserDto.id_unidade },
 		});
@@ -25,12 +24,10 @@ export class UserService {
 			throw new Error('Unidade atrelada ao usuario nao existe');
 		}
 
-		// 2. Gerar hash da senha
 		const hashedPassword = await this.hashingService.hash(
 			createUserDto.password,
 		);
 
-		// 3. Criar usuário com a senha hasheada
 		const newUser = await this.prisma.usuario.create({
 			data: {
 				cpf: createUserDto.cpf,
@@ -42,7 +39,6 @@ export class UserService {
 				id_unidade_pertecente: createUserDto.id_unidade,
 			},
 		});
-
 		return newUser;
 	}
 
@@ -57,10 +53,6 @@ export class UserService {
 		return user;
 	}
 
-	// update(id: number, updateUserDto: UpdateUserDto) {
-	//   return `This action updates a #${id} user`;
-	// }
-
 	async deleteUser(id: string) {
 		const busca = { where: { id: id } };
 		const usuario = await this.prisma.usuario.findUnique(busca);
@@ -68,19 +60,33 @@ export class UserService {
 		return this.prisma.usuario.delete({ where: { id: id } });
 	}
 
-	async updateUser(id: string, updateUserDto: UpdatePatientDto) {
-		const busca = { where: { id: id } };
-		const usuario = await this.prisma.usuario.findUnique(busca);
-		if (!usuario) this.throwNotFound();
-		return this.prisma.usuario.update({
-			where: { id: id },
-			data: updateUserDto,
-		});
-	}
+	async updateUser(id: string, updateUserDto: UpdateUserDto) {
+		const data: Prisma.usuarioUpdateInput = {};
 
-	// async verificaExistencia(id: string) {
-	// 	const busca = { where: { id: id } };
-	// 	const usuario = await this.prisma.usuario.findUnique(busca);
-	// 	if (!usuario) this.throwNotFound();
-	// }
+		if (updateUserDto.nome !== undefined) data.nome = updateUserDto.nome;
+		if (updateUserDto.email !== undefined) data.email = updateUserDto.email;
+		if (updateUserDto.atribuicao !== undefined)
+			data.atribuicao = updateUserDto.atribuicao;
+		if (updateUserDto.comprovante !== undefined)
+			data.comprovante = updateUserDto.comprovante;
+
+		if (updateUserDto.password) {
+			data.password = await this.hashingService.hash(updateUserDto.password);
+		}
+
+		try {
+			return await this.prisma.usuario.update({
+				where: { id },
+				data,
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === 'P2025'
+			) {
+				throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+			}
+			throw error;
+		}
+	}
 }
