@@ -10,15 +10,16 @@ datasource db {
 model dispensacao {
   id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
-  quantidade_entregue Int // Quantos saíram do estoque DE FATO
-  proxima_retirada    DateTime? @db.Date // Para a Busca Ativa
+  quantidade_entregue Int
+  proxima_retirada    DateTime? @db.Date
 
   id_prescricao String? @db.Uuid
-  id_usuario    String? @db.Uuid // O farmacêutico/técnico que entregou
+  id_usuario    String? @db.Uuid
+  id_paciente   String? @db.Uuid
 
   prescricao prescricao? @relation(fields: [id_prescricao], references: [id])
   usuario    usuario?    @relation(fields: [id_usuario], references: [id])
-  pacientes  paciente[]
+  paciente   paciente?   @relation(fields: [id_paciente], references: [id])
 }
 
 model estoque {
@@ -35,10 +36,10 @@ model estoque {
 model prescricao {
   id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_receita         DateTime @default(now()) @db.Date
-  uso_continuo         Boolean  @default(false) // Extraído do PEC (Crucial para Hiperdia)
-  receita_externa      Boolean  @default(false) // Extraído do PEC
-  via_administracao    String? // Extraído do PEC (Ex: Via Oral)
-  quantidade_receitada Int // Extraído do PEC (Ex: 21)
+  uso_continuo         Boolean  @default(false) 
+  receita_externa      Boolean  @default(false) 
+  via_administracao    String? 
+  quantidade_receitada Int 
 
   id_medicamento String? @db.Uuid
   id_paciente    String? @db.Uuid
@@ -80,10 +81,10 @@ model paciente {
   condicao           String?
   sexo               String?
   microarea_id       String?      @db.Uuid
-  retiradas          String?      @db.Uuid
-  microarea          microarea?   @relation(fields: [microarea_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  dispensacao        dispensacao? @relation(fields: [retiradas], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  prescricaos        prescricao[]
+
+  microarea     microarea?     @relation(fields: [microarea_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prescricaos   prescricao[]
+  dispensacoes  dispensacao[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -91,7 +92,9 @@ model unidade_saude {
   id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome      String
   CEP       Int?
-  numero_edificio Int?
+  numero_edificio Int?  
+  rua     String?
+  bairro  String?
   cnes      String      @unique
   estoque   estoque[]
   microarea microarea[]
@@ -100,13 +103,13 @@ model unidade_saude {
 
 model usuario {
   id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cpf                   String?        @db.VarChar(11)
-  nome                  String?
-  email                 String?
-  password              String?
-  atribuicao            String?
-  comprovante           String?
-  id_unidade_pertecente String?        @db.Uuid
+  cpf                   String        @db.VarChar(11)
+  nome                  String
+  email                 String        @unique
+  password              String
+  atribuicao            String
+  comprovante           String
+  id_unidade_pertecente String        @db.Uuid
   unidade_saude         unidade_saude? @relation(fields: [id_unidade_pertecente], references: [id], onDelete: NoAction, onUpdate: NoAction)
   dispensacaos          dispensacao[]
 }
