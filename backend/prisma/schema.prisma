@@ -13,6 +13,33 @@ enum Role {
   MANAGER
 }
 
+enum CatergoriasMedicamentos {
+  HIPERTENSAO
+  DIABETES
+  HIPERDIA
+}
+
+enum FormaFarmaceutica {
+  ADESIVO
+  AMPOLA
+  ANEL
+  APLICACAO
+  BARRA
+  BASTAO
+  BISNAGA
+  BLISTER
+  BOLSA
+  CAPSULA_INALANTE
+  CARPULE
+  CARTAO
+  CARTELA
+  COMPRIMIDO
+  DOSE
+  DRAGEA
+  EMPLASTRO
+  ENVELOPE
+}
+
 model dispensacao {
   id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
@@ -43,7 +70,6 @@ model prescricao {
   id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_receita         DateTime @default(now()) @db.Date
   uso_continuo         Boolean  @default(false) 
-  receita_externa      Boolean  @default(false) 
   via_administracao    String? 
   quantidade_receitada Int 
 
@@ -58,10 +84,8 @@ model prescricao {
 model medicamento {
   id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String?
-  forma_farmaceutica String?
-  categoria          String?
-  // data_de_validade DateTime?     @db.Date
-  // dispensacao      dispensacao[]
+  forma_farmaceutica FormaFarmaceutica
+  categoria          CatergoriasMedicamentos
   estoque            estoque[]
   prescricoes        prescricao[]
 }

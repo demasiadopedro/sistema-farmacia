@@ -7,6 +7,7 @@ import { UnidadeModule } from './unidade/unidade.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { RemedyModule } from './remedy/remedy.module';
 import jwtConfig from './auth/config/jwt.config';
 
 @Module({
@@ -20,6 +21,7 @@ import jwtConfig from './auth/config/jwt.config';
 			load: [jwtConfig],
 			isGlobal: true,
 		}),
+		RemedyModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
