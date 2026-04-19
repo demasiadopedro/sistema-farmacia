@@ -6,9 +6,21 @@ import { PatientModule } from './patient/patient.module';
 import { UnidadeModule } from './unidade/unidade.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import jwtConfig from './auth/config/jwt.config';
 
 @Module({
-	imports: [UserModule, PatientModule, UnidadeModule, PrismaModule, AuthModule],
+	imports: [
+		UserModule,
+		PatientModule,
+		UnidadeModule,
+		PrismaModule,
+		AuthModule,
+		ConfigModule.forRoot({
+			load: [jwtConfig],
+			isGlobal: true,
+		}),
+	],
 	controllers: [AppController],
 	providers: [AppService],
 })

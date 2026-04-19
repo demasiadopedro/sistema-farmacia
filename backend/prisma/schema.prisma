@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+}
+
 model dispensacao {
   id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
@@ -107,6 +113,7 @@ model usuario {
   nome                  String
   email                 String        @unique
   password              String
+  role                  Role @default(USER)
   atribuicao            String
   comprovante           String
   id_unidade_pertecente String        @db.Uuid

@@ -3,29 +3,29 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateUserDto {
 	@IsString()
 	@IsNotEmpty({ message: 'o cpf nao pode esta vazio' })
-	cpf: string;
+	cpf!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'o nome nao pode esta vazio' })
-	nome: string;
+	nome!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'o email nao pode esta vazio' })
-	email: string;
+	email!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'a senha nao pode esta vazia' })
-	password: string;
+	password!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'a atibuicao nao pode esta vazia' })
-	atribuicao: string;
+	atribuicao!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'o comprovante nao pode esta vazio' })
-	comprovante: string;
+	comprovante!: string;
 
 	@IsString()
 	@IsNotEmpty({ message: 'o id da unidade nao pode estar vazio' })
-	id_unidade: string;
+	id_unidade!: string;
 }

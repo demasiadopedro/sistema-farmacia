@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { usuario } from '../../generated/prisma/client';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
+import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 
 @Injectable()
 export class UserService {
@@ -53,22 +58,45 @@ export class UserService {
 		return user;
 	}
 
-	async deleteUser(id: string) {
+	async deleteUser(id: string, tokenPayload: TokenPayloadDto) {
+		const isAdmin = tokenPayload.role === Role.ADMIN;
+		const isOwner = id === tokenPayload.sub;
+
+		if (!isAdmin && !isOwner) {
+			throw new ForbiddenException(
+				'Voce não tem permissao para excluir esse usuario',
+			);
+		}
 		const busca = { where: { id: id } };
 		const usuario = await this.prisma.usuario.findUnique(busca);
 		if (!usuario) this.throwNotFound();
 		return this.prisma.usuario.delete({ where: { id: id } });
 	}
 
-	async updateUser(id: string, updateUserDto: UpdateUserDto) {
+	async updateUser(
+		id: string,
+		updateUserDto: UpdateUserDto,
+		tokenPayload: TokenPayloadDto,
+	) {
 		const data: Prisma.usuarioUpdateInput = {};
+		const isOwner = id === tokenPayload.sub;
+		const isAdmin = tokenPayload.role === Role.ADMIN;
+		if (!isOwner && !isAdmin) {
+			throw new ForbiddenException(
+				'Você não tem permissão para editar este usuário.',
+			);
+		}
+		if (updateUserDto.role && !isAdmin) {
+			throw new ForbiddenException(
+				'Você não tem permissão para alterar níveis de acesso.',
+			);
+		}
 
 		if (updateUserDto.nome !== undefined) data.nome = updateUserDto.nome;
 		if (updateUserDto.email !== undefined) data.email = updateUserDto.email;
-		if (updateUserDto.atribuicao !== undefined)
-			data.atribuicao = updateUserDto.atribuicao;
 		if (updateUserDto.comprovante !== undefined)
 			data.comprovante = updateUserDto.comprovante;
+		if (updateUserDto.role) data.role = updateUserDto.role;
 
 		if (updateUserDto.password) {
 			data.password = await this.hashingService.hash(updateUserDto.password);
