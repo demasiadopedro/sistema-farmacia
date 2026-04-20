@@ -39,6 +39,7 @@ export class AuthService {
 				sub: user.id,
 				email: user.email,
 				role: user.role,
+				unidade: user.id_unidade_pertecente,
 			},
 			{
 				audience: this.jwtConfiguration.audience,
