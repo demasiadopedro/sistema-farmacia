@@ -45,11 +45,13 @@ model dispensacao {
   data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
   quantidade_entregue Int
   proxima_retirada    DateTime? @db.Date
+  id_estoque          String    @db.Uuid
 
   id_prescricao String? @db.Uuid
   id_usuario    String? @db.Uuid
   id_paciente   String? @db.Uuid
 
+  estoque    estoque     @relation(fields: [id_estoque], references: [id])
   prescricao prescricao? @relation(fields: [id_prescricao], references: [id])
   usuario    usuario?    @relation(fields: [id_usuario], references: [id])
   paciente   paciente?   @relation(fields: [id_paciente], references: [id])
@@ -64,14 +66,15 @@ model estoque {
   id_unidade_saude String?        @db.Uuid
   medicamento      medicamento?   @relation(fields: [id_medicamento], references: [id])
   unidade_saude    unidade_saude? @relation(fields: [id_unidade_saude], references: [id])
+  dispensacoes dispensacao[]
 }
 
 model prescricao {
   id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   data_receita         DateTime @default(now()) @db.Date
-  uso_continuo         Boolean  @default(false) 
-  via_administracao    String? 
-  quantidade_receitada Int 
+  uso_continuo         Boolean  @default(false)
+  via_administracao    String?
+  quantidade_receitada Int
 
   id_medicamento String? @db.Uuid
   id_paciente    String? @db.Uuid
@@ -82,7 +85,7 @@ model prescricao {
 }
 
 model medicamento {
-  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String?
   forma_farmaceutica FormaFarmaceutica
   categoria          CatergoriasMedicamentos
@@ -101,46 +104,46 @@ model microarea {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model paciente {
-  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String?
-  data_de_nascimento DateTime?    @db.Date
-  cpf                String       @unique @db.VarChar(11)
-  cns                String       @unique @db.VarChar(15)
-  telefone           String?      @db.VarChar(14)
+  data_de_nascimento DateTime? @db.Date
+  cpf                String    @unique @db.VarChar(11)
+  cns                String    @unique @db.VarChar(15)
+  telefone           String?   @db.VarChar(14)
   endereco           String?
   condicao           String?
   sexo               String?
-  microarea_id       String?      @db.Uuid
+  microarea_id       String?   @db.Uuid
 
-  microarea     microarea?     @relation(fields: [microarea_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  prescricaos   prescricao[]
-  dispensacoes  dispensacao[]
+  microarea    microarea?    @relation(fields: [microarea_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prescricaos  prescricao[]
+  dispensacoes dispensacao[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model unidade_saude {
-  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nome      String
-  CEP       Int?
-  numero_edificio Int?  
-  rua     String?
-  bairro  String?
-  cnes      String      @unique
-  estoque   estoque[]
-  microarea microarea[]
-  usuario   usuario[]
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String
+  CEP             Int?
+  numero_edificio Int?
+  rua             String?
+  bairro          String?
+  cnes            String      @unique
+  estoque         estoque[]
+  microarea       microarea[]
+  usuario         usuario[]
 }
 
 model usuario {
   id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cpf                   String        @db.VarChar(11)
+  cpf                   String         @db.VarChar(11)
   nome                  String
-  email                 String        @unique
+  email                 String         @unique
   password              String
-  role                  Role @default(USER)
+  role                  Role           @default(USER)
   atribuicao            String
   comprovante           String
-  id_unidade_pertecente String        @db.Uuid
+  id_unidade_pertecente String         @db.Uuid
   unidade_saude         unidade_saude? @relation(fields: [id_unidade_pertecente], references: [id], onDelete: NoAction, onUpdate: NoAction)
   dispensacaos          dispensacao[]
 }
