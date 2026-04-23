@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { RemedyModule } from './remedy/remedy.module';
 import { StockModule } from './stock/stock.module';
 import { DispensationModule } from './dispensation/dispensation.module';
+import { PrescriptionModule } from './prescription/prescription.module';
 import jwtConfig from './auth/config/jwt.config';
 
 @Module({
@@ -26,6 +27,7 @@ import jwtConfig from './auth/config/jwt.config';
 		RemedyModule,
 		StockModule,
 		DispensationModule,
+		PrescriptionModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

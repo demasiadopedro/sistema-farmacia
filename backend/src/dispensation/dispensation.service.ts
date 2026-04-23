@@ -17,6 +17,27 @@ export class DispensationService {
 				where: { id: createDispensacaoDto.id_estoque },
 			});
 
+			const paciente = await tx.paciente.findUnique({
+				where: {
+					id: createDispensacaoDto.id_paciente,
+				},
+			});
+
+			const prescricao = await tx.prescricao.findUnique({
+				where: {
+					id: createDispensacaoDto.id_prescricao,
+				},
+			});
+
+			if (!paciente) {
+				throw new BadRequestException(
+					'Paciente não encontrado, por favor cadastralo no programa.',
+				);
+			}
+			if (!prescricao) {
+				throw new BadRequestException('Prescrição não encontrada.');
+			}
+
 			if (!estoque) {
 				throw new BadRequestException('Lote de estoque não encontrado.');
 			}
@@ -34,7 +55,7 @@ export class DispensationService {
 				},
 			});
 			await tx.estoque.update({
-				where: { id: createDispensacaoDto.id_paciente },
+				where: { id: createDispensacaoDto.id_estoque },
 				data: {
 					quantidade: {
 						decrement: createDispensacaoDto.quantidade_entregue,
