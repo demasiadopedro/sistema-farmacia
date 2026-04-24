@@ -30,7 +30,6 @@ export class PrescriptionController {
 
 	@Get(':id')
 	findOne(@Param('id', ParseUUIDPipe) id: string) {
-		// Removido o "+" que tentava converter a string para number
 		return this.prescriptionService.findOne(id);
 	}
 
@@ -43,7 +42,7 @@ export class PrescriptionController {
 	}
 
 	@Delete(':id')
-	@HttpCode(HttpStatus.NO_CONTENT) // Retorna 204 sem corpo, padrão ideal para deleção
+	@HttpCode(HttpStatus.NO_CONTENT)
 	remove(@Param('id', ParseUUIDPipe) id: string) {
 		return this.prescriptionService.remove(id);
 	}

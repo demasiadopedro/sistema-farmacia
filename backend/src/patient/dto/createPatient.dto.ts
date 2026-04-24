@@ -4,28 +4,28 @@ import { IsDate, IsNotEmpty, IsString, MaxDate } from 'class-validator';
 export class CreatePatientDto {
 	@IsString()
 	@IsNotEmpty()
-	nome: string;
+	nome!: string;
 	@IsNotEmpty()
 	@Type(() => Date)
 	@IsDate()
 	@MaxDate(new Date(), { message: 'data de nascimento invalida' })
-	data_nascimento: Date;
+	data_nascimento!: Date;
 	@IsString()
 	@IsNotEmpty()
-	cpf: string;
+	cpf!: string;
 	@IsString()
 	@IsNotEmpty()
-	cns: string;
+	cns!: string;
 	@IsString()
 	@IsNotEmpty()
-	telefone: string;
+	telefone!: string;
 	@IsString()
 	@IsNotEmpty()
-	endereco: string;
+	endereco!: string;
 	@IsString()
 	@IsNotEmpty()
-	condicao: string;
+	condicao!: string;
 	@IsString()
 	@IsNotEmpty()
-	sexo: string;
+	sexo!: string;
 }

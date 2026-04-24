@@ -19,54 +19,55 @@ enum CatergoriasMedicamentos {
   HIPERDIA
 }
 
-enum FormaFarmaceutica {
-  ADESIVO
-  AMPOLA
-  ANEL
-  APLICACAO
-  BARRA
-  BASTAO
-  BISNAGA
-  BLISTER
-  BOLSA
-  CAPSULA_INALANTE
-  CARPULE
-  CARTAO
-  CARTELA
+enum UnidadeMedida {
   COMPRIMIDO
-  DOSE
-  DRAGEA
-  EMPLASTRO
-  ENVELOPE
+  CAPSULA
+  FRASCO
+  AMPOLA 
+  BISNAGA 
+  ENVELOPE 
+  CANETA 
+  UNIDADE 
 }
 
 model dispensacao {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  data_entrega        DateTime  @default(now()) @db.Timestamptz(6)
-  quantidade_entregue Int
-  proxima_retirada    DateTime? @db.Date
-  id_estoque          String    @db.Uuid
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  data_entrega     DateTime  @default(now()) @db.Timestamptz(6)
+  proxima_retirada DateTime? @db.Date
 
   id_prescricao String? @db.Uuid
   id_usuario    String? @db.Uuid
   id_paciente   String? @db.Uuid
 
-  estoque    estoque     @relation(fields: [id_estoque], references: [id])
   prescricao prescricao? @relation(fields: [id_prescricao], references: [id])
   usuario    usuario?    @relation(fields: [id_usuario], references: [id])
   paciente   paciente?   @relation(fields: [id_paciente], references: [id])
+
+  itens item_dispensado[]
+}
+
+model item_dispensado {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_dispensacao String @db.Uuid
+  id_estoque     String @db.Uuid
+  quantidade     Int 
+
+  dispensacao dispensacao @relation(fields: [id_dispensacao], references: [id])
+  estoque     estoque     @relation(fields: [id_estoque], references: [id])
 }
 
 model estoque {
-  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   lote             String?
-  quantidade       Int            @default(0) // O QUE TEM NA PRATELEIRA
-  data_de_validade DateTime?      @db.Date
-  id_medicamento   String?        @db.Uuid
-  id_unidade_saude String?        @db.Uuid
-  medicamento      medicamento?   @relation(fields: [id_medicamento], references: [id])
-  unidade_saude    unidade_saude? @relation(fields: [id_unidade_saude], references: [id])
-  dispensacoes dispensacao[]
+  quantidade       Int       @default(0)
+  data_de_validade DateTime? @db.Date
+  id_medicamento   String?   @db.Uuid
+  id_unidade_saude String?   @db.Uuid
+
+  medicamento   medicamento?   @relation(fields: [id_medicamento], references: [id])
+  unidade_saude unidade_saude? @relation(fields: [id_unidade_saude], references: [id])
+
+  itens_dispensados item_dispensado[]
 }
 
 model prescricao {
@@ -81,16 +82,16 @@ model prescricao {
 
   medicamento  medicamento?  @relation(fields: [id_medicamento], references: [id])
   paciente     paciente?     @relation(fields: [id_paciente], references: [id])
-  dispensacoes dispensacao[] // Uma receita de uso contínuo gera várias entregas
+  dispensacoes dispensacao[] 
 }
 
 model medicamento {
-  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nome               String?
-  forma_farmaceutica FormaFarmaceutica
-  categoria          CatergoriasMedicamentos
-  estoque            estoque[]
-  prescricoes        prescricao[]
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome           String?
+  unidade_medida UnidadeMedida @default(COMPRIMIDO)
+  categoria      CatergoriasMedicamentos
+  estoque        estoque[]
+  prescricoes    prescricao[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
