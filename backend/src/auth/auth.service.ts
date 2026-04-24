@@ -50,6 +50,6 @@ export class AuthService {
 		);
 		console.log(acessToken);
 
-		return { message: 'usuario logado' };
+		return { message: 'usuario logado', acessToken: acessToken };
 	}
 }

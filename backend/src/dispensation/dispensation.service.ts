@@ -1,3 +1,4 @@
+// dispensation.service.ts
 import {
 	Injectable,
 	BadRequestException,
@@ -11,59 +12,86 @@ import { ReturnDispensationDto } from './dto/return-dispensation.dto';
 export class DispensationService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async create(createDispensacaoDto: CreateDispensationDto) {
+	async create(dto: CreateDispensationDto) {
 		return this.prisma.$transaction(async (tx) => {
-			const estoque = await tx.estoque.findUnique({
-				where: { id: createDispensacaoDto.id_estoque },
-			});
+			if (dto.id_paciente) {
+				const paciente = await tx.paciente.findUnique({
+					where: { id: dto.id_paciente },
+				});
+				if (!paciente)
+					throw new BadRequestException('Paciente não encontrado.');
+			}
 
-			const paciente = await tx.paciente.findUnique({
+			if (dto.id_prescricao) {
+				const prescricao = await tx.prescricao.findUnique({
+					where: { id: dto.id_prescricao },
+				});
+				if (!prescricao)
+					throw new BadRequestException('Prescrição não encontrada.');
+			}
+
+			const lotesDisponiveis = await tx.estoque.findMany({
 				where: {
-					id: createDispensacaoDto.id_paciente,
+					id_medicamento: dto.id_medicamento,
+					quantidade: { gt: 0 },
+				},
+				orderBy: {
+					data_de_validade: 'asc',
 				},
 			});
 
-			const prescricao = await tx.prescricao.findUnique({
-				where: {
-					id: createDispensacaoDto.id_prescricao,
-				},
-			});
+			const totalDisponivel = lotesDisponiveis.reduce(
+				(acc, lote) => acc + lote.quantidade,
+				0,
+			);
 
-			if (!paciente) {
+			if (totalDisponivel < dto.quantidade_solicitada) {
 				throw new BadRequestException(
-					'Paciente não encontrado, por favor cadastralo no programa.',
+					`Estoque insuficiente. Solicitado: ${dto.quantidade_solicitada}, Disponível: ${totalDisponivel}`,
 				);
 			}
-			if (!prescricao) {
-				throw new BadRequestException('Prescrição não encontrada.');
-			}
 
-			if (!estoque) {
-				throw new BadRequestException('Lote de estoque não encontrado.');
-			}
-			if (estoque.quantidade < createDispensacaoDto.quantidade_entregue) {
-				throw new BadRequestException('Quantidade insuficiente neste lote.');
-			}
 			const dispensacao = await tx.dispensacao.create({
 				data: {
-					quantidade_entregue: createDispensacaoDto.quantidade_entregue,
-					proxima_retirada: createDispensacaoDto.proxima_retirada,
-					id_prescricao: createDispensacaoDto.id_prescricao,
-					id_usuario: createDispensacaoDto.id_usuario,
-					id_paciente: createDispensacaoDto.id_paciente,
-					id_estoque: createDispensacaoDto.id_estoque,
-				},
-			});
-			await tx.estoque.update({
-				where: { id: createDispensacaoDto.id_estoque },
-				data: {
-					quantidade: {
-						decrement: createDispensacaoDto.quantidade_entregue,
-					},
+					proxima_retirada: dto.proxima_retirada,
+					id_prescricao: dto.id_prescricao,
+					id_usuario: dto.id_usuario,
+					id_paciente: dto.id_paciente,
 				},
 			});
 
-			return dispensacao;
+			let quantidadeRestanteParaPegar = dto.quantidade_solicitada;
+
+			for (const lote of lotesDisponiveis) {
+				if (quantidadeRestanteParaPegar === 0) break;
+
+				const quantidadeRetiradaDesteLote = Math.min(
+					lote.quantidade,
+					quantidadeRestanteParaPegar,
+				);
+
+				await tx.item_dispensado.create({
+					data: {
+						id_dispensacao: dispensacao.id,
+						id_estoque: lote.id,
+						quantidade: quantidadeRetiradaDesteLote,
+					},
+				});
+
+				await tx.estoque.update({
+					where: { id: lote.id },
+					data: {
+						quantidade: { decrement: quantidadeRetiradaDesteLote },
+					},
+				});
+
+				quantidadeRestanteParaPegar -= quantidadeRetiradaDesteLote;
+			}
+
+			return tx.dispensacao.findUnique({
+				where: { id: dispensacao.id },
+				include: { itens: true },
+			});
 		});
 	}
 
@@ -74,26 +102,49 @@ export class DispensationService {
 		return this.prisma.$transaction(async (tx) => {
 			const dispensacao = await tx.dispensacao.findUnique({
 				where: { id: idDispensacao },
+				include: {
+					itens: {
+						include: { estoque: true },
+						orderBy: { estoque: { data_de_validade: 'desc' } },
+					},
+				},
 			});
 
 			if (!dispensacao) {
 				throw new NotFoundException('Registro de dispensação não encontrado.');
 			}
 
-			if (returnDto.quantidade_devolvida > dispensacao.quantidade_entregue) {
+			const totalEntregue = dispensacao.itens.reduce(
+				(acc, item) => acc + item.quantidade,
+				0,
+			);
+
+			if (returnDto.quantidade_devolvida > totalEntregue) {
 				throw new BadRequestException(
 					'A quantidade devolvida não pode ser maior do que a quantidade entregue originalmente.',
 				);
 			}
 
-			await tx.estoque.update({
-				where: { id: dispensacao.id_estoque },
-				data: {
-					quantidade: {
-						increment: returnDto.quantidade_devolvida,
+			let quantidadeRestanteParaDevolver = returnDto.quantidade_devolvida;
+
+			for (const item of dispensacao.itens) {
+				if (quantidadeRestanteParaDevolver === 0) break;
+
+				const quantidadeDevolvidaParaEsteLote = Math.min(
+					item.quantidade,
+					quantidadeRestanteParaDevolver,
+				);
+
+				await tx.estoque.update({
+					where: { id: item.id_estoque },
+					data: {
+						quantidade: { increment: quantidadeDevolvidaParaEsteLote },
 					},
-				},
-			});
+				});
+
+				quantidadeRestanteParaDevolver -= quantidadeDevolvidaParaEsteLote;
+			}
+
 			return {
 				message: 'Devolução processada com sucesso, estoque atualizado.',
 				id_dispensacao_revertida: idDispensacao,
