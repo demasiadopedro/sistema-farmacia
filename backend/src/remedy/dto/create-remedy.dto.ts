@@ -1,4 +1,4 @@
-import { CatergoriasMedicamentos, FormaFarmaceutica } from '@prisma/client';
+import { CatergoriasMedicamentos, UnidadeMedida } from '@prisma/client';
 import { IsEnum } from 'class-validator';
 
 export class CreateRemedyDto {
@@ -8,6 +8,6 @@ export class CreateRemedyDto {
 			'O medicamento deve pertence a pelo menos uma das seguintes categorias: Hipertensão ou Diabet1es',
 	})
 	categoria!: CatergoriasMedicamentos;
-	@IsEnum(FormaFarmaceutica, { message: 'Forma invalida' })
-	forma_farmaceutica!: FormaFarmaceutica;
+	@IsEnum(UnidadeMedida, { message: 'Forma invalida' })
+	forma_farmaceutica!: UnidadeMedida;
 }
