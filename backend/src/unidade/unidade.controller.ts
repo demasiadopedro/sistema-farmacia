@@ -6,11 +6,17 @@ import {
 	Param,
 	Patch,
 	Post,
+	UseGuards,
 } from '@nestjs/common';
 import { UnidadeService } from './unidade.service';
 import { UpdateUnidadeDto } from './dto/update-user.dto';
 import { CreateUnidadeDto } from './dto/create-unidade.dto';
-
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RoleGuard } from '../auth/role/role.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '@prisma/client';
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles(Role.ADMIN)
 @Controller('unidade')
 export class UnidadeController {
 	constructor(private readonly unidadeService: UnidadeService) {}

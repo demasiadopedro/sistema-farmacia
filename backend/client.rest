@@ -2,14 +2,16 @@
 @baseUrl = http://localhost:3000
 @Id-Semsa = "48ad0a1e-3a29-4a80-b162-9782232b83bc"
 @Id-Losartana = "a81acba5-6b1b-4be2-80ad-ae8c0fa56c12"
-@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZDY4OWJiOS0wNzJhLTQzMzMtODE1OS03NzMwZTkwOWU3Y2IiLCJlbWFpbCI6InBlZHJvLnNhbnRvc2Jyb3RpbmhvQGVtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInVuaWRhZGUiOiI0OGFkMGExZS0zYTI5LTRhODAtYjE2Mi05NzgyMjMyYjgzYmMiLCJpYXQiOjE3NzY5ODU4MDAsImV4cCI6MTc3Njk4OTQwMCwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIn0.m_6IcKKVycOGEGpfBD--rnCHCPeJgAkucg-OeVLxsVA
-### -----------------------------------------------------------
+@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZDY4OWJiOS0wNzJhLTQzMzMtODE1OS03NzMwZTkwOWU3Y2IiLCJlbWFpbCI6InBlZHJvLnNhbnRvc2Jyb3RpbmhvQGVtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInVuaWRhZGUiOiI0OGFkMGExZS0zYTI5LTRhODAtYjE2Mi05NzgyMjMyYjgzYmMiLCJpYXQiOjE3NzcyNDEwNTQsImV4cCI6MTc3NzI0NDY1NCwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIn0.RL1mS9Vw_AyxA6IdvkwdJzeryedihYJj8kjD2aZhWvc
+
+
 ### 1. UNIDADE DE SAÚDE (Base de tudo)
 ### -----------------------------------------------------------
 
 # @name createUnidade
 POST {{baseUrl}}/unidade
 Content-Type: application/json
+Authorization: Bearer {{Acess-Token}}
 
 {
   "nome": "SEMSA",
@@ -20,6 +22,7 @@ Content-Type: application/json
 
 ### Listar Unidades
 GET {{baseUrl}}/unidade
+Authorization: Bearer {{Acess-Token}}
 
 ### -----------------------------------------------------------
 ### 2. USUÁRIO (Criação)
