@@ -49,6 +49,7 @@ export class AuthService {
 			},
 		);
 		// console.log(acessToken);
+		console.log(this.jwtConfiguration.secret);
 
 		return { message: 'usuario logado', acessToken: acessToken };
 	}

@@ -11,9 +11,6 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthTokenGuard } from '../auth/guards/auth-token.guard';
-import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
-import { TokenPayloadParam } from '../auth/params/token-payload.param';
 import { RoleGuard } from '../auth/role/role.guard';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -30,34 +27,23 @@ export class UserController {
 		return this.userService.createUser(createUserDto);
 	}
 
-	@UseGuards(AuthTokenGuard)
 	@Get()
 	findAll() {
 		return this.userService.buscarTodosUsers();
 	}
 
-	@UseGuards(AuthTokenGuard)
 	@Get(':id')
 	findOne(@Param('id') id: string) {
 		return this.userService.buscarUser(id);
 	}
 
-	@UseGuards(AuthTokenGuard)
 	@Patch(':id')
-	update(
-		@Param('id') id: string,
-		@Body() updateUserDto: UpdateUserDto,
-		@TokenPayloadParam() tokenPayload: TokenPayloadDto,
-	) {
-		return this.userService.updateUser(id, updateUserDto, tokenPayload);
+	update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+		return this.userService.updateUser(id, updateUserDto);
 	}
 
-	@UseGuards(AuthTokenGuard)
 	@Delete(':id')
-	remove(
-		@Param('id') id: string,
-		@TokenPayloadParam() tokenPayload: TokenPayloadDto,
-	) {
-		return this.userService.deleteUser(id, tokenPayload);
+	remove(@Param('id') id: string) {
+		return this.userService.deleteUser(id);
 	}
 }

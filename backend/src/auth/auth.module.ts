@@ -6,6 +6,8 @@ import { AuthService } from './auth.service';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
 	imports: [
@@ -19,7 +21,9 @@ import { JwtModule } from '@nestjs/jwt';
 			useClass: BcryptService,
 		},
 		AuthService,
+		JwtAuthGuard,
+		JwtStrategy,
 	],
-	exports: [HashingServiceProtocol, JwtModule, ConfigModule],
+	exports: [HashingServiceProtocol, JwtModule, ConfigModule, JwtAuthGuard],
 })
 export class AuthModule {}
