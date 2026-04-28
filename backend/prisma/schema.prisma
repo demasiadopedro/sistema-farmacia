@@ -137,7 +137,7 @@ model unidade_saude {
 
 model usuario {
   id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cpf                   String         @db.VarChar(11)
+  cpf                   String         @db.VarChar(11) @unique
   nome                  String
   email                 String         @unique
   password              String

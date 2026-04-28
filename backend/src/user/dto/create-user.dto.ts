@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsTaxId } from 'class-validator';
 
 export class CreateUserDto {
 	@IsString()
+	@IsTaxId('pt-BR', { message: 'cpf invalido' })
 	@IsNotEmpty({ message: 'o cpf nao pode esta vazio' })
 	cpf!: string;
 

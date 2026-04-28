@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	ConflictException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { usuario } from '../../generated/prisma/client';
@@ -22,7 +26,13 @@ export class UserService {
 				email: createUserDto.email,
 			},
 		});
-		if (emailUsado) throw new Error('Email já cadastrado');
+		if (emailUsado) throw new ConflictException('Email já cadastrado');
+
+		const cpfUsado = await this.prisma.usuario.findUnique({
+			where: { cpf: createUserDto.cpf },
+		});
+		if (cpfUsado) throw new ConflictException('Cpf já cadastrado');
+
 		const unidade = await this.prisma.unidade_saude.findUnique({
 			where: { id: createUserDto.id_unidade },
 		});
@@ -33,10 +43,11 @@ export class UserService {
 		const hashedPassword = await this.hashingService.hash(
 			createUserDto.password,
 		);
+		const cpfLimpo = createUserDto.cpf.replace(/\D/g, '');
 
 		const newUser = await this.prisma.usuario.create({
 			data: {
-				cpf: createUserDto.cpf,
+				cpf: cpfLimpo,
 				nome: createUserDto.nome,
 				password: hashedPassword,
 				email: createUserDto.email,
