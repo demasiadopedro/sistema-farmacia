@@ -2,7 +2,7 @@
 @baseUrl = http://localhost:3000
 @Id-Semsa = "48ad0a1e-3a29-4a80-b162-9782232b83bc"
 @Id-Losartana = "a81acba5-6b1b-4be2-80ad-ae8c0fa56c12"
-@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZDY4OWJiOS0wNzJhLTQzMzMtODE1OS03NzMwZTkwOWU3Y2IiLCJlbWFpbCI6InBlZHJvLnNhbnRvc2Jyb3RpbmhvQGVtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInVuaWRhZGUiOiI0OGFkMGExZS0zYTI5LTRhODAtYjE2Mi05NzgyMjMyYjgzYmMiLCJpYXQiOjE3NzcyNDEwNTQsImV4cCI6MTc3NzI0NDY1NCwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIn0.RL1mS9Vw_AyxA6IdvkwdJzeryedihYJj8kjD2aZhWvc
+@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYzA0ZDUwZi02YzUzLTQ4ZjAtOTc1OS1lM2U0ODM2MjY3NDYiLCJlbWFpbCI6InBlZHJvaGVucmlxaWVkYXNpbHZhc2FudG9zQGdtYWlsLmNvbSIsInJvbGUiOiJNQU5BR0VSIiwidW5pZGFkZSI6IjQ4YWQwYTFlLTNhMjktNGE4MC1iMTYyLTk3ODIyMzJiODNiYyIsImlhdCI6MTc3NzQwNTkzNiwiZXhwIjoxNzc3NDA5NTM2LCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.AAXLqAu39TqKPA3BiiPOMC6YG0R3JP7GCrhWxI8mFCE
 
 
 ### 1. UNIDADE DE SAÚDE (Base de tudo)
@@ -31,27 +31,53 @@ Authorization: Bearer {{Acess-Token}}
 # @name createUser
 POST {{baseUrl}}/user
 Content-Type: application/json
+Authorization: Bearer {{Acess-Token}}
 
 {
-  "cpf": "12345678901",
-  "nome": "Pedro Santos",
-  "email": "pedro.santosbrotinho@email.com",
+  "cpf": "32642039285",
+  "nome": "Pedro Silva",
+  "email": "thepedrosantos@proton.me",
   "password": "Horcruxes7",
   "atribuicao": "Estagiario",
   "comprovante": "2025001039",
   "id_unidade": "48ad0a1e-3a29-4a80-b162-9782232b83bc"
 }
+###Aumentar privilegio
+PATCH {{baseUrl}}/user/dc04d50f-6c53-48f0-9759-e3e483626746
+Content-Type: application/json
+Authorization: Bearer {{Acess-Token}}
 
+{
+  "role": "MANAGER"
+}
 ### -----------------------------------------------------------
 ### 3. LOGIN / AUTENTICAÇÃO
 ### -----------------------------------------------------------
 
 # @name loginRequest
+### login admin
 POST {{baseUrl}}/auth
 Content-Type: application/json
 
 {
   "email": "pedro.santosbrotinho@email.com",
+  "password": "Horcruxes7"
+}
+### login user
+POST {{baseUrl}}/auth
+Content-Type: application/json
+
+{
+  "email": "thepedrosantos@proton.me",
+  "password": "Horcruxes7"
+}
+
+### login user
+POST {{baseUrl}}/auth
+Content-Type: application/json
+
+{
+  "email": "pedrohenriqiedasilvasantos@gmail.com",
   "password": "Horcruxes7"
 }
 

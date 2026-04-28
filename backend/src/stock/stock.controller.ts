@@ -7,12 +7,19 @@ import {
 	Param,
 	Delete,
 	ParseUUIDPipe,
+	UseGuards,
 } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RoleGuard } from '../auth/role/role.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('stock')
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles(Role.MANAGER, Role.ADMIN)
 export class StockController {
 	constructor(private readonly stockService: StockService) {}
 

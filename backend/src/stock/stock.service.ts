@@ -1,8 +1,4 @@
-import {
-	Injectable,
-	NotFoundException,
-	BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -49,25 +45,6 @@ export class StockService {
 
 		return this.prisma.estoque.delete({
 			where: { id },
-		});
-	}
-
-	async dispensar(id: string, quantidadeDispensada: number) {
-		const estoque = await this.findOne(id);
-
-		if (estoque.quantidade < quantidadeDispensada) {
-			throw new BadRequestException(
-				'Quantidade insuficiente neste lote para a dispensação solicitada.',
-			);
-		}
-
-		return this.prisma.estoque.update({
-			where: { id },
-			data: {
-				quantidade: {
-					decrement: quantidadeDispensada,
-				},
-			},
 		});
 	}
 }

@@ -48,8 +48,6 @@ export class AuthService {
 				expiresIn: this.jwtConfiguration.jwtTtl,
 			},
 		);
-		// console.log(acessToken);
-		console.log(this.jwtConfiguration.secret);
 
 		return { message: 'usuario logado', acessToken: acessToken };
 	}

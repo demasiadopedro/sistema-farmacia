@@ -16,10 +16,11 @@ import { RoleGuard } from '../auth/role/role.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '@prisma/client';
 @UseGuards(JwtAuthGuard, RoleGuard)
-@Roles(Role.ADMIN)
 @Controller('unidade')
+@Roles(Role.ADMIN)
 export class UnidadeController {
 	constructor(private readonly unidadeService: UnidadeService) {}
+	@Roles(Role.ADMIN, Role.MANAGER)
 	@Get()
 	findAll() {
 		return this.unidadeService.buscarTodos();
