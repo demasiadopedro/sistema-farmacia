@@ -1,12 +1,12 @@
-### Configurações Globais
+### Globals
 @baseUrl = http://localhost:3000
 @Id-Semsa = "48ad0a1e-3a29-4a80-b162-9782232b83bc"
 @Id-Losartana = "a81acba5-6b1b-4be2-80ad-ae8c0fa56c12"
-@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYzA0ZDUwZi02YzUzLTQ4ZjAtOTc1OS1lM2U0ODM2MjY3NDYiLCJlbWFpbCI6InBlZHJvaGVucmlxaWVkYXNpbHZhc2FudG9zQGdtYWlsLmNvbSIsInJvbGUiOiJNQU5BR0VSIiwidW5pZGFkZSI6IjQ4YWQwYTFlLTNhMjktNGE4MC1iMTYyLTk3ODIyMzJiODNiYyIsImlhdCI6MTc3NzQwNTkzNiwiZXhwIjoxNzc3NDA5NTM2LCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.AAXLqAu39TqKPA3BiiPOMC6YG0R3JP7GCrhWxI8mFCE
+@Acess-Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZDY4OWJiOS0wNzJhLTQzMzMtODE1OS03NzMwZTkwOWU3Y2IiLCJlbWFpbCI6InBlZHJvLnNhbnRvc2Jyb3RpbmhvQGVtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInVuaWRhZGUiOiI0OGFkMGExZS0zYTI5LTRhODAtYjE2Mi05NzgyMjMyYjgzYmMiLCJpYXQiOjE3Nzc1NDI5MTAsImV4cCI6MTc3NzU0NjUxMCwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIn0.UF5QOOT0PI6eOiLFneiIk5IAfKzFBOUI4CA-0FqOLgQ
 
 
-### 1. UNIDADE DE SAÚDE (Base de tudo)
-### -----------------------------------------------------------
+
+### Unidade de Saúde
 
 # @name createUnidade
 POST {{baseUrl}}/unidade
@@ -20,13 +20,12 @@ Authorization: Bearer {{Acess-Token}}
   "numero_edificio": 150
 }
 
-### Listar Unidades
+###
 GET {{baseUrl}}/unidade
 Authorization: Bearer {{Acess-Token}}
 
-### -----------------------------------------------------------
-### 2. USUÁRIO (Criação)
-### -----------------------------------------------------------
+
+### User
 
 # @name createUser
 POST {{baseUrl}}/user
@@ -42,7 +41,8 @@ Authorization: Bearer {{Acess-Token}}
   "comprovante": "2025001039",
   "id_unidade": "48ad0a1e-3a29-4a80-b162-9782232b83bc"
 }
-###Aumentar privilegio
+
+###
 PATCH {{baseUrl}}/user/dc04d50f-6c53-48f0-9759-e3e483626746
 Content-Type: application/json
 Authorization: Bearer {{Acess-Token}}
@@ -50,12 +50,15 @@ Authorization: Bearer {{Acess-Token}}
 {
   "role": "MANAGER"
 }
-### -----------------------------------------------------------
-### 3. LOGIN / AUTENTICAÇÃO
-### -----------------------------------------------------------
 
-# @name loginRequest
-### login admin
+###
+GET {{baseUrl}}/user
+Authorization: Bearer {{Acess-Token}}
+
+
+### Auth
+
+# @name loginAdmin
 POST {{baseUrl}}/auth
 Content-Type: application/json
 
@@ -63,7 +66,9 @@ Content-Type: application/json
   "email": "pedro.santosbrotinho@email.com",
   "password": "Horcruxes7"
 }
-### login user
+
+###
+# @name loginUser
 POST {{baseUrl}}/auth
 Content-Type: application/json
 
@@ -72,7 +77,8 @@ Content-Type: application/json
   "password": "Horcruxes7"
 }
 
-### login user
+###
+# @name loginUser2
 POST {{baseUrl}}/auth
 Content-Type: application/json
 
@@ -81,19 +87,10 @@ Content-Type: application/json
   "password": "Horcruxes7"
 }
 
-### 🪄 Variável Automática (Executa ao fazer o login)
-@authToken = {{loginRequest.response.body.accessToken}}
+@authToken = {{loginUser.response.body.accessToken}}
 
-### -----------------------------------------------------------
-### TESTE DE AUTENTICAÇÃO (Listar Usuários)
-### -----------------------------------------------------------
 
-GET {{baseUrl}}/user
-Authorization: Bearer {{Acess-Token}}
-
-### -----------------------------------------------------------
-### 4. MEDICAMENTO (Remedy)
-### -----------------------------------------------------------
+### Medicamento
 
 # @name createRemedy
 POST {{baseUrl}}/remedy
@@ -106,30 +103,28 @@ Content-Type: application/json
   "forma_farmaceutica": "COMPRIMIDO"
 }
 
-### -----------------------------------------------------------
-### 5. ESTOQUE (Stock)
-### -----------------------------------------------------------
+
+### Estoque
 
 # @name createStock
 POST {{baseUrl}}/stock
 Content-Type: application/json
+Authorization: Bearer {{Acess-Token}}
+
 
 {
   "lote": "LOT2026-A",
   "quantidade": 500,
-  "data_de_validade": "2028-12-31T00:00:00Z",
+  "data_de_validade": "2034-12-31T00:00:00Z",
   "id_medicamento": {{Id-Losartana}},
   "id_unidade_saude": {{Id-Semsa}}
 }
 
-### -----------------------------------------------------------
-### PACIENTES 
-### -----------------------------------------------------------
+
+### Pacientes
 
 # @name createPatient
 POST {{baseUrl}}/pacientes
-# Se você adicionar o @UseGuards(AuthTokenGuard) no futuro, descomente a linha abaixo:
-# Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
@@ -143,16 +138,13 @@ Content-Type: application/json
   "sexo": "F"
 }
 
-### 🪄 Variável Automática para o ID do Paciente (Opcional)
 @pacienteId = {{createPatient.response.body.id}}
 
-### Buscar Paciente por ID
+###
 GET {{baseUrl}}/pacientes/{{pacienteId}}
-# Authorization: Bearer {{authToken}}
 
-### Atualizar Paciente (Patch)
+###
 PATCH {{baseUrl}}/pacientes/{{pacienteId}}
-# Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
@@ -160,13 +152,11 @@ Content-Type: application/json
   "telefone": "11888888888"
 }
 
-### Deletar Paciente
+###
 DELETE {{baseUrl}}/pacientes/{{pacienteId}}
-# Authorization: Bearer {{authToken}}
 
-### -----------------------------------------------------------
-### 6. PRESCRIÇÃO
-### -----------------------------------------------------------
+
+### Prescrição
 
 # @name createPrescription
 POST {{baseUrl}}/prescription
@@ -181,24 +171,24 @@ Content-Type: application/json
   "id_paciente": "ceb71a35-0b49-4d50-9c64-15c9e4daabbe"
 }
 
-### -----------------------------------------------------------
-### 7. DISPENSAÇÃO (Entrega e Estorno)
-### -----------------------------------------------------------
+
+### Dispensação
 
 # @name createDispensation
 POST {{baseUrl}}/dispensation
 Content-Type: application/json
 
 {
-  "quantidade_entregue": 30,
+  "quantidade_solicitada": 30,
+  "id_medicamento": {{Id-Losartana}},
   "proxima_retirada": "2026-05-23T00:00:00Z",
-  "id_prescricao": "COLE_AQUI_O_ID_DA_PRESCRICAO",
-  "id_usuario": "COLE_AQUI_O_ID_DO_USUARIO_LOGADO",
-  "id_estoque": "COLE_AQUI_O_ID_DO_ESTOQUE"
+  "id_prescricao": "d259baea-e43b-458f-9437-d2a4a7ea407a", 
+  "id_usuario": "ad689bb9-072a-4333-8159-7730e909e7cb",
+  "id_paciente": "ceb71a35-0b49-4d50-9c64-15c9e4daabbe"
 }
 
-### Estorno de Dispensação
-POST {{baseUrl}}/dispensation/ID_DA_DISPENSACAO_GERADA/reverse
+###
+POST {{baseUrl}}/dispensation/586dc388-f19b-4f77-bddc-c55a301bf1fb/reverse
 Content-Type: application/json
 
 {
