@@ -1,5 +1,6 @@
 import {
 	ConflictException,
+	ForbiddenException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { usuario } from '../../generated/prisma/client';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
 import { Prisma } from '@prisma/client';
+import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 
 @Injectable()
 export class UserService {
@@ -77,7 +79,24 @@ export class UserService {
 		return this.prisma.usuario.delete({ where: { id: id } });
 	}
 
-	async updateUser(id: string, updateUserDto: UpdateUserDto) {
+	async updateUser(
+		id: string,
+		updateUserDto: UpdateUserDto,
+		token: TokenPayloadDto,
+	) {
+		const isOwner = id === token.sub;
+		const isAdmin = token.role === 'ADMIN';
+		if (!isOwner && !isAdmin) {
+			throw new ForbiddenException(
+				'Você não tem permissão para editar este usuário.',
+			);
+		}
+
+		if (updateUserDto.role && !isAdmin) {
+			throw new ForbiddenException(
+				'Você não tem permissão para alterar seu nivel de acesso.',
+			);
+		}
 		const data: Prisma.usuarioUpdateInput = {};
 		if (updateUserDto.nome !== undefined) data.nome = updateUserDto.nome;
 		if (updateUserDto.email !== undefined) data.email = updateUserDto.email;
