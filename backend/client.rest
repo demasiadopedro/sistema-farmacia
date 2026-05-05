@@ -141,7 +141,7 @@ Content-Type: application/json
 @pacienteId = {{createPatient.response.body.id}}
 
 ###
-GET {{baseUrl}}/pacientes/{{pacienteId}}
+GET {{baseUrl}}/pacientes/586dc388-f19b-4f77-bddc-c55a301bf1fb
 
 ###
 PATCH {{baseUrl}}/pacientes/{{pacienteId}}
@@ -179,7 +179,7 @@ POST {{baseUrl}}/dispensation
 Content-Type: application/json
 
 {
-  "quantidade_solicitada": 30,
+  "quantidade_solicitada": 270,
   "id_medicamento": {{Id-Losartana}},
   "proxima_retirada": "2026-05-23T00:00:00Z",
   "id_prescricao": "d259baea-e43b-458f-9437-d2a4a7ea407a", 
@@ -192,6 +192,6 @@ POST {{baseUrl}}/dispensation/586dc388-f19b-4f77-bddc-c55a301bf1fb/reverse
 Content-Type: application/json
 
 {
-  "quantidade_devolvida": 30,
+  "quantidade_devolvida": 200,
   "motivo": "Erro na dosagem ou paciente recusou"
 }

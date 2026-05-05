@@ -1,23 +1,13 @@
-import {
-	ForbiddenException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRemedyDto } from './dto/create-remedy.dto';
 import { UpdateRemedyDto } from './dto/update-remedy.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
-import { Role } from '@prisma/client';
 
 @Injectable()
 export class RemedyService {
 	constructor(private readonly prismaService: PrismaService) {}
 
-	async create(
-		createRemedyDto: CreateRemedyDto,
-		tokenPayload: TokenPayloadDto,
-	) {
-		this.verificarPermissão(tokenPayload);
+	async create(createRemedyDto: CreateRemedyDto) {
 		return await this.prismaService.medicamento.create({
 			data: createRemedyDto,
 		});
@@ -41,12 +31,7 @@ export class RemedyService {
 		return remedy;
 	}
 
-	async update(
-		id: string,
-		updateRemedyDto: UpdateRemedyDto,
-		tokenPayload: TokenPayloadDto,
-	) {
-		this.verificarPermissão(tokenPayload);
+	async update(id: string, updateRemedyDto: UpdateRemedyDto) {
 		await this.findOne(id);
 		return await this.prismaService.medicamento.update({
 			where: { id },
@@ -54,8 +39,7 @@ export class RemedyService {
 		});
 	}
 
-	async remove(id: string, tokenPayload: TokenPayloadDto) {
-		this.verificarPermissão(tokenPayload);
+	async remove(id: string) {
 		await this.findOne(id);
 
 		return await this.prismaService.medicamento.delete({
@@ -63,13 +47,13 @@ export class RemedyService {
 		});
 	}
 
-	verificarPermissão(tokenPayload: TokenPayloadDto) {
-		const isAdmin = tokenPayload.role === Role.ADMIN;
+	// verificarPermissão(tokenPayload: TokenPayloadDto) {
+	// 	const isAdmin = tokenPayload.role === Role.ADMIN;
 
-		if (!isAdmin) {
-			throw new ForbiddenException(
-				'Voce não tem permissao para editar esse medicamento',
-			);
-		}
-	}
+	// 	if (!isAdmin) {
+	// 		throw new ForbiddenException(
+	// 			'Voce não tem permissao para editar esse medicamento',
+	// 		);
+	// 	}
+	// }
 }

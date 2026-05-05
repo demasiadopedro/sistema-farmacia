@@ -11,21 +11,20 @@ import {
 import { RemedyService } from './remedy.service';
 import { CreateRemedyDto } from './dto/create-remedy.dto';
 import { UpdateRemedyDto } from './dto/update-remedy.dto';
-import { AuthTokenGuard } from '../auth/guards/auth-token.guard';
-import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
-import { TokenPayloadParam } from '../auth/params/token-payload.param';
+import { RoleGuard } from '../auth/role/role.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('remedy')
-@UseGuards(AuthTokenGuard)
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles(Role.MANAGER, Role.ADMIN)
 export class RemedyController {
 	constructor(private readonly remedyService: RemedyService) {}
 
 	@Post()
-	create(
-		@Body() createRemedyDto: CreateRemedyDto,
-		@TokenPayloadParam() tokenPayload: TokenPayloadDto,
-	) {
-		return this.remedyService.create(createRemedyDto, tokenPayload);
+	create(@Body() createRemedyDto: CreateRemedyDto) {
+		return this.remedyService.create(createRemedyDto);
 	}
 
 	@Get()
@@ -39,19 +38,12 @@ export class RemedyController {
 	}
 
 	@Patch(':id')
-	update(
-		@Param('id') id: string,
-		@Body() updateRemedyDto: UpdateRemedyDto,
-		@TokenPayloadParam() tokenPayload: TokenPayloadDto,
-	) {
-		return this.remedyService.update(id, updateRemedyDto, tokenPayload);
+	update(@Param('id') id: string, @Body() updateRemedyDto: UpdateRemedyDto) {
+		return this.remedyService.update(id, updateRemedyDto);
 	}
 
 	@Delete(':id')
-	remove(
-		@Param('id') id: string,
-		@TokenPayloadParam() tokenPayload: TokenPayloadDto,
-	) {
-		return this.remedyService.remove(id, tokenPayload);
+	remove(@Param('id') id: string) {
+		return this.remedyService.remove(id);
 	}
 }
