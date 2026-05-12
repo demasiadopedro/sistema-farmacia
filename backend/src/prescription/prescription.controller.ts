@@ -9,12 +9,18 @@ import {
 	ParseUUIDPipe,
 	HttpCode,
 	HttpStatus,
+	UseGuards,
 } from '@nestjs/common';
 import { PrescriptionService } from './prescription.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RoleGuard } from '../auth/role/role.guard';
+import { Roles } from '../auth/roles/roles.decorator';
 
 @Controller('prescription')
+@UseGuards(JwtAuthGuard, RoleGuard)
+@Roles()
 export class PrescriptionController {
 	constructor(private readonly prescriptionService: PrescriptionService) {}
 
