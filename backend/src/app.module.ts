@@ -12,6 +12,7 @@ import { StockModule } from './stock/stock.module';
 import { DispensationModule } from './dispensation/dispensation.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import jwtConfig from './auth/config/jwt.config';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
 	imports: [
@@ -28,6 +29,12 @@ import jwtConfig from './auth/config/jwt.config';
 		StockModule,
 		DispensationModule,
 		PrescriptionModule,
+		ThrottlerModule.forRoot([
+			{
+				ttl: 60000,
+				limit: 10,
+			},
+		]),
 	],
 	controllers: [AppController],
 	providers: [AppService],
