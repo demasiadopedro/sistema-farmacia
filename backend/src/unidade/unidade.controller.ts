@@ -15,6 +15,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role/role.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '@prisma/client';
+import { TokenPayloadParam } from '../auth/params/token-payload.param';
+import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 @UseGuards(JwtAuthGuard, RoleGuard)
 @Controller('unidade')
 @Roles(Role.ADMIN)
@@ -39,8 +41,9 @@ export class UnidadeController {
 	patchUnidade(
 		@Param('id') id: string,
 		@Body() updateUnidadeDto: UpdateUnidadeDto,
+		@TokenPayloadParam() token: TokenPayloadDto,
 	) {
-		return this.unidadeService.updateUnidade(id, updateUnidadeDto);
+		return this.unidadeService.updateUnidade(id, updateUnidadeDto, token);
 	}
 
 	@Post()

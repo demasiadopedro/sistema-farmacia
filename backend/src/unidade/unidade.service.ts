@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { CreateUnidadeDto } from './dto/create-unidade.dto';
 import { unidade_saude } from '../../generated/prisma/client';
 import { UpdateUnidadeDto } from './dto/update-user.dto';
+import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UnidadeService {
@@ -45,10 +51,23 @@ export class UnidadeService {
 		await this.prisma.unidade_saude.delete({ where: { id: idParam } });
 	}
 
-	async updateUnidade(id: string, updateUnidade: UpdateUnidadeDto) {
+	async updateUnidade(
+		id: string,
+		updateUnidade: UpdateUnidadeDto,
+		token: TokenPayloadDto,
+	) {
+		const user = await this.prisma.usuario.findUnique({
+			where: { id: token.sub },
+		});
+
+		if (user?.id_unidade_pertecente !== id && user?.role !== Role.ADMIN) {
+			throw new ForbiddenException(
+				'Voce nao tem permissão para alterar essa unidade',
+			);
+		}
 		const unidade = await this.buscarUnidade(id);
 		if (!unidade) this.throwNotFound();
-		const novaUnidade = this.prisma.unidade_saude.update({
+		const novaUnidade = await this.prisma.unidade_saude.update({
 			where: { id: id },
 			data: { ...updateUnidade },
 		});
