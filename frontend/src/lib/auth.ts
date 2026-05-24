@@ -17,13 +17,19 @@ export async function loginAction(formData: FormData) {
         if (!response.ok) {
             return { error: 'Credenciais Invalidas, verifique email e senha' }
         }
-        (await cookies()).set('session_token', data.token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 60 * 60 * 8
-        })
+
+        const token = data.acessToken
+        if(token) {
+            (await cookies()).set('session_token', data.token, {
+                name: 'session_token',
+                value: token,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 60 * 60 * 8
+            })
+        }
         return { sucess: true }
     } catch (error) {
         console.error("Erro no servidor:", error)
