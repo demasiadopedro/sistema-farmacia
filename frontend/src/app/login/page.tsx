@@ -22,7 +22,7 @@ export default function Login() {
 
     const data = new FormData()
     data.append('email', email)
-    data.append('senha', password)
+    data.append('password', password)
 
     try {
       const result = await loginAction(data)

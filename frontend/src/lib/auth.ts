@@ -13,10 +13,11 @@ export async function loginAction(formData: FormData) {
         })
 
         const data = await response.json();
-
-        if (!response.ok) {
-            return { error: 'Credenciais Invalidas, verifique email e senha' }
-        }
+        // console.log("Status do NestJS:", response.status);
+        // console.log("Resposta do NestJS:", data);
+        // if (!response.ok) {
+        //     return { error: 'Credenciais Invalidas, verifique email e senha' }
+        // }
 
         const token = data.acessToken
         if(token) {

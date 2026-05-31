@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Card, CardHeader } from "@/components/ui/card";
 import ChartOverview from '@/components/chart';
 import Retiradas from '@/components/retiradas';
-import { auth } from "@/auth";
 
 const actionCards = [
 
@@ -36,15 +35,12 @@ const actionCards = [
 ];
 
 export default async function AppHome() {
-    const session = await auth();
-    const userName = session?.user?.name || "Visitante";
-
     return (
         <main className='sm:ml-56 min-h-screen bg-gray-50 flex flex-col'>
             <div className='relative flex items-center bg-white border-b
                 border-gray-200 p-4 h-16 shadow-sm shrink-0'>
                 <Sidebar />
-                <h1 className='text-2xl font-bold text-[#003967] whitespace-nowrap tracking-tight'>Olá, {userName}</h1>
+                <h1 className='text-2xl font-bold text-[#003967] whitespace-nowrap tracking-tight'>Olá, {}</h1>
             </div>
             <section className='p-4 md:p-8 pb-0'>
                 <Card className='rounded-xl shadow-sm border-none ring-1 ring-gray-100 bg-white'>
