@@ -34,6 +34,15 @@ export class AuthService {
 
 		if (!passwordIsValid) throw new UnauthorizedException('Senha Invalida');
 
+		const unidade = await this.prisma.unidade_saude.findUnique({
+			where: { id: user.id_unidade_pertecente },
+		});
+
+		if (!unidade)
+			throw new UnauthorizedException(
+				'Unidade de saúde não encontrada para este usuário',
+			);
+
 		const acessToken = await this.jwtService.signAsync(
 			{
 				sub: user.id,
@@ -49,6 +58,16 @@ export class AuthService {
 			},
 		);
 
-		return { message: 'usuario logado', acessToken: acessToken };
+		return {
+			message: 'usuario logado',
+			access_token: acessToken,
+			email: user.email,
+			role: user.role,
+			nome: user.nome,
+			atribuicao: user.atribuicao,
+			unidade: unidade.nome,
+			cep: unidade.CEP,
+			cnes: unidade.cnes,
+		};
 	}
 }
