@@ -10,6 +10,15 @@ export class PatientService {
 	throwNotFound(): never {
 		throw new NotFoundException('Nao Foi possivel encontrar');
 	}
+	async BuscarPacientesUnidade(id: string) {
+		return await this.prisma.paciente.findMany({
+			where: {
+				microarea: {
+					unidade_saude_id: id,
+				},
+			},
+		});
+	}
 
 	async createPatient(createPatient: CreatePatientDto) {
 		const newPatient = await this.prisma.paciente.create({
@@ -22,6 +31,7 @@ export class PatientService {
 				endereco: createPatient.endereco,
 				condicao: createPatient.condicao,
 				sexo: createPatient.sexo,
+				microarea_id: createPatient.microarea_id,
 			},
 		});
 		return newPatient;

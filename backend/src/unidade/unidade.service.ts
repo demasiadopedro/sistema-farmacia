@@ -9,6 +9,8 @@ import { unidade_saude } from '../../generated/prisma/client';
 import { UpdateUnidadeDto } from './dto/update-user.dto';
 import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 import { Role } from '@prisma/client';
+import { UpdateMicroareaDto } from './dto/update-microarea.dto';
+import { CreateMicroareaDto } from './dto/create-microarea.dto';
 
 @Injectable()
 export class UnidadeService {
@@ -72,5 +74,60 @@ export class UnidadeService {
 			data: { ...updateUnidade },
 		});
 		return novaUnidade;
+	}
+
+	async criarMicroarea(
+		unidadeId: string,
+		createMicroareaDto: CreateMicroareaDto,
+	) {
+		await this.buscarUnidade(unidadeId);
+
+		return this.prisma.microarea.create({
+			data: {
+				nome: createMicroareaDto.nome,
+				unidade_saude_id: unidadeId,
+			},
+		});
+	}
+
+	async buscarTodasMicroareasDaUnidade(unidadeId: string) {
+		await this.buscarUnidade(unidadeId);
+
+		return this.prisma.microarea.findMany({
+			where: { unidade_saude_id: unidadeId },
+		});
+	}
+
+	async buscarMicroareaPorId(unidadeId: string, microareaId: string) {
+		const microarea = await this.prisma.microarea.findFirst({
+			where: {
+				id: microareaId,
+				unidade_saude_id: unidadeId, // Garante que a microárea pertence a esta unidade
+			},
+		});
+
+		if (!microarea) this.throwNotFound();
+		return microarea;
+	}
+
+	async atualizarMicroarea(
+		unidadeId: string,
+		microareaId: string,
+		updateMicroareaDto: UpdateMicroareaDto,
+	) {
+		await this.buscarMicroareaPorId(unidadeId, microareaId);
+
+		return this.prisma.microarea.update({
+			where: { id: microareaId },
+			data: { ...updateMicroareaDto },
+		});
+	}
+
+	async deletarMicroarea(unidadeId: string, microareaId: string) {
+		await this.buscarMicroareaPorId(unidadeId, microareaId);
+
+		await this.prisma.microarea.delete({
+			where: { id: microareaId },
+		});
 	}
 }

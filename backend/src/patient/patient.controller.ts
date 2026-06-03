@@ -26,6 +26,10 @@ export class PatientController {
 	create(@Body() createPatientDto: CreatePatientDto) {
 		return this.patientService.createPatient(createPatientDto);
 	}
+	@Get('/unidade/:id')
+	findPatientByUnidade(@Param('id') id: string) {
+		return this.patientService.BuscarPacientesUnidade(id);
+	}
 
 	@Get(':id')
 	findOne(@Param('id') id: string) {

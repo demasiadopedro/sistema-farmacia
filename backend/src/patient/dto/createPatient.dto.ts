@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString, MaxDate } from 'class-validator';
+import { IsDate, IsNotEmpty, IsString, IsUUID, MaxDate } from 'class-validator';
 
 export class CreatePatientDto {
 	@IsString()
@@ -28,4 +28,8 @@ export class CreatePatientDto {
 	@IsString()
 	@IsNotEmpty()
 	sexo!: string;
+	@IsString()
+	@IsUUID()
+	@IsNotEmpty()
+	microarea_id!: string;
 }
