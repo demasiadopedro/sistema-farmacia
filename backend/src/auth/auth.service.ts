@@ -66,6 +66,7 @@ export class AuthService {
 			nome: user.nome,
 			atribuicao: user.atribuicao,
 			unidade: unidade.nome,
+			unidade_id: user.id_unidade_pertecente,
 			cep: unidade.CEP,
 			cnes: unidade.cnes,
 		};

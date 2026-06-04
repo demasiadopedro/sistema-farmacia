@@ -1,4 +1,3 @@
-// src/app/paciente/PacienteClient.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -35,25 +34,25 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
 
     const [searchTerm, setSearchTerm] = useState("");
     const [searchType, setSearchType] = useState("Nome");
-    const [searchResult, setSearchResult] = useState<PacienteData | null>(null);
+
+    const [pacientesFiltrados, setPacientesFiltrados] = useState<PacienteData[]>(pacientesIniciais);
     const [hasSearched, setHasSearched] = useState(false);
 
     function handleSearch() {
         setHasSearched(true);
         if (!searchTerm.trim()) {
-            setSearchResult(null);
+            setPacientesFiltrados(pacientesIniciais);
             return;
         }
 
-        // Agora a busca acontece em cima dos dados reais do NestJS
-        const found = pacientesIniciais.find(p => {
+        const filtrados = pacientesIniciais.filter(p => {
             if (searchType === "Nome") return p.nome?.toLowerCase().includes(searchTerm.toLowerCase());
             if (searchType === "CPF") return p.cpf?.replace(/\D/g, '') === searchTerm.replace(/\D/g, '');
             if (searchType === "CNS") return p.cns?.replace(/\D/g, '') === searchTerm.replace(/\D/g, '');
             return false;
         });
 
-        setSearchResult(found || null);
+        setPacientesFiltrados(filtrados);
     }
 
     useEffect(() => {
@@ -71,6 +70,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
 
     return (
         <main className='sm:ml-56 min-h-screen bg-white'>
+            {/* CABEÇALHO */}
             <div className='relative flex items-center bg-gray-50 border-b border-gray-200 p-4 h-16'>
                 <Sidebar />
                 <h1 className='text-2xl font-semibold text-[#003967] whitespace-nowrap'>Pacientes</h1>
@@ -132,30 +132,32 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                     </Field>
                 </section>
 
-                {/* RESULTADO DA BUSCA */}
-                {hasSearched && (
-                    <div className="mt-8 w-full max-w-lg">
-                        {searchResult ? (
-                            <Link href={`/paciente/perfil?nome=${encodeURIComponent(searchResult.nome || "")}`} className="block group">                                <Card className="border-l-4 border-l-[#1976d2] shadow-md overflow-hidden bg-white transition-all duration-200 hover:shadow-lg hover:border-l-blue-600 cursor-pointer group-hover:-translate-y-1">
+                {/* RESULTADO DA BUSCA / LISTAGEM */}
+                <div className="mt-8 w-full max-w-lg flex flex-col gap-4">
+                    {pacientesFiltrados.length > 0 ? (
+                        pacientesFiltrados.map((paciente) => (
+                            <Link key={paciente.id} href={`/paciente/perfil?id=${paciente.id}`} className="block group">                                <Card className="border-l-4 border-l-[#1976d2] shadow-md overflow-hidden bg-white transition-all duration-200 hover:shadow-lg hover:border-l-blue-600 cursor-pointer group-hover:-translate-y-1">
                                 <CardContent className="p-5 flex flex-col gap-1">
                                     <div className="flex justify-between items-center w-full">
-                                        <h2 className="text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{searchResult.nome}</h2>
+                                        <h2 className="text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{paciente.nome}</h2>
                                         <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Ver perfil</span>
                                     </div>
                                     <div className="mt-3 flex flex-col gap-1">
-                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {searchResult.cpf}</p>
-                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {searchResult.cns}</p>
+                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {paciente.cpf}</p>
+                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {paciente.cns}</p>
                                     </div>
                                 </CardContent>
                             </Card>
                             </Link>
-                        ) : (
+                        ))
+                    ) : (
+                        hasSearched && (
                             <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 font-medium">
                                 Nenhum paciente encontrado para esta busca.
                             </div>
-                        )}
-                    </div>
-                )}
+                        )
+                    )}
+                </div>
             </div>
 
             {/* BOTÃO PARA CADASTRAR PACIENTE */}

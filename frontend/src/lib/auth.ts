@@ -13,13 +13,13 @@ export async function loginAction(formData: FormData) {
         })
 
         const data = await response.json();
-        // console.log("Status do NestJS:", response.status);
-        // console.log("Resposta do NestJS:", data);
+        
         if (!response.ok) {
             return { error: 'Credenciais Invalidas, verifique email e senha' }
         }
 
         const token = data.access_token
+        
         if (token) {
             (await cookies()).set('session_token', token, {
                 httpOnly: true,
@@ -27,33 +27,32 @@ export async function loginAction(formData: FormData) {
                 sameSite: 'lax',
                 path: '/',
                 maxAge: 60 * 60 * 8
-            })
+            });
 
-            return { success: true }
+            const userProfile = {
+                nome: data.nome,
+                email: data.email,
+                role: data.role,
+                atribuicao: data.atribuicao,
+                unidade: data.unidade,
+                id_unidade: data.unidade_id,
+                cep: data.cep,
+                cnes: data.cnes
+            };
+
+            (await cookies()).set('UserInfo', JSON.stringify(userProfile) ,{
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: "lax",
+                path: '/',
+                maxAge: 60 * 60 * 8
+            });
+
+            return { success: true };
         }
 
-        const userProfile = {
-            nome: data.nome,
-            email: data.email,
-            role: data.role,
-            atribuicao: data.atribuicao,
-            unidade: data.unidade,
-            cep: data.cep,
-            cnes: data.cnes
-        };
-
-        (await cookies()).set('UserInfo', JSON.stringify(userProfile) ,{
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: "lax",
-            path: '/',
-            maxAge: 60*60*8
-        })
-
-        return { success: true }
     } catch (error) {
         console.error("Erro no servidor:", error)
         return { error: "Ocorreu um erro ao tentar se comunicar com o servidor." }
     }
-
 }

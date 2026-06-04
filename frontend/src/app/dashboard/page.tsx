@@ -1,32 +1,27 @@
-
 import Sidebar from '@/components/sidebar'
 import { ChevronRight, Users, ClipboardList, User, PillBottle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader } from "@/components/ui/card";
 import ChartOverview from '@/components/chart';
 import Retiradas from '@/components/retiradas';
+import { cookies } from 'next/headers';
 
 const actionCards = [
-
-
     {
         href: "/dispensacao",
         icon: PillBottle,
         label: "Dispensar Medicamentos",
     },
-
     {
         href: "/paciente",
         icon: User,
         label: "Pacientes Cadastrados",
     },
-
     {
         href: "/paciente/cadastro",
         icon: Users,
         label: "Cadastrar Novo Paciente",
     },
-
     {
         href: "/estoque/relatorio",
         icon: ClipboardList,
@@ -35,17 +30,31 @@ const actionCards = [
 ];
 
 export default async function AppHome() {
+    const userInfoString = (await cookies()).get('UserInfo')?.value;
+    
+    let userName = "Usuário";
+
+    if (userInfoString) {
+        try {
+            const userInfo = JSON.parse(userInfoString);
+            userName = userInfo.nome || "Usuário"; 
+        } catch (error) {
+            console.error("Erro ao ler o JSON do cookie UserInfo:", error);
+        }
+    }
+
     return (
         <main className='sm:ml-56 min-h-screen bg-gray-50 flex flex-col'>
-            <div className='relative flex items-center bg-white border-b
-                border-gray-200 p-4 h-16 shadow-sm shrink-0'>
+            <div className='relative flex items-center bg-white border-b border-gray-200 p-4 h-16 shadow-sm shrink-0'>
                 <Sidebar />
-                <h1 className='text-2xl font-bold text-[#003967] whitespace-nowrap tracking-tight'>Olá, {}</h1>
+                {/* 4. Coloca o nome do vivente aqui */}
+                <h1 className='text-2xl font-bold text-[#003967] whitespace-nowrap tracking-tight'>
+                    Olá, {userName}!
+                </h1>
             </div>
             <section className='p-4 md:p-8 pb-0'>
                 <Card className='rounded-xl shadow-sm border-none ring-1 ring-gray-100 bg-white'>
                     <CardHeader className="pb-6">
-                        {/* Cards de ações rápidas */}
                         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full'>
                             {actionCards.map(({ href, icon: Icon, label }) => (
                                 <Link
