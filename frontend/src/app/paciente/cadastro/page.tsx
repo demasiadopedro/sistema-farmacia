@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+    createPacienteAction,
+    getMicroareasAction,
+    CreatePacienteData,
+    Microarea
+} from "@/app/actions/paciente";
 
-// Helper functions para máscaras
 const maskCPF = (value: string) => {
     return value
         .replace(/\D/g, "")
@@ -31,9 +37,15 @@ const maskCNS = (value: string) => {
 };
 
 export default function CadastroPaciente() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const [microareas, setMicroareas] = useState<Microarea[]>([]);
+
     const [formData, setFormData] = useState({
         nome: "",
-        data_de_nascimento: "",
+        data_nascimento: "",
         cpf: "",
         cns: "",
         telefone: "",
@@ -42,6 +54,19 @@ export default function CadastroPaciente() {
         sexo: "",
         microarea_id: "",
     });
+
+    useEffect(() => {
+        const fetchMicroareas = async () => {
+            const result = await getMicroareasAction();
+            if (result.data) {
+                setMicroareas(result.data);
+            } else {
+                console.error("Não foi possível carregar as microáreas:", result.error);
+            }
+        };
+
+        fetchMicroareas();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -54,12 +79,34 @@ export default function CadastroPaciente() {
         setFormData(prev => ({ ...prev, [name]: formattedValue }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Dados do paciente a serem enviados ao banco:", formData);
+        setError(null);
+        setLoading(true);
 
-        // Simulação de envio para o backend
-        alert("Paciente cadastrado com sucesso (MOCK)!");
+        const payload: CreatePacienteData = {
+            ...formData,
+            data_nascimento: new Date(formData.data_nascimento).toISOString(),
+            cpf: formData.cpf.replace(/\D/g, ""),
+            cns: formData.cns.replace(/\D/g, ""),
+            telefone: formData.telefone.replace(/\D/g, "")
+        };
+
+        try {
+            const result = await createPacienteAction(payload);
+
+            if (result.error) {
+                const errorMsg = Array.isArray(result.error) ? result.error.join(', ') : result.error;
+                setError(errorMsg);
+            } else {
+                alert("Paciente cadastrado com sucesso!");
+                router.push("/paciente");
+            }
+        } catch (err) {
+            setError("Ocorreu um erro inesperado ao conectar com o servidor.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -82,6 +129,13 @@ export default function CadastroPaciente() {
 
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Exibição de Erros do Backend */}
+                                {error && (
+                                    <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                                        {error}
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                                     {/* Nome */}
                                     <div className="space-y-2 md:col-span-2">
@@ -103,14 +157,14 @@ export default function CadastroPaciente() {
 
                                     {/* Data de Nascimento */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="data_de_nascimento" className="text-gray-800 font-medium">Data de Nascimento <span className="text-red-500">*</span></Label>
-                                        <Input id="data_de_nascimento" name="data_de_nascimento" type="date" required value={formData.data_de_nascimento} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2] text-gray-700" />
+                                        <Label htmlFor="data_nascimento" className="text-gray-800 font-medium">Data de Nascimento <span className="text-red-500">*</span></Label>
+                                        <Input id="data_nascimento" name="data_nascimento" type="date" required value={formData.data_nascimento} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2] text-gray-700" />
                                     </div>
 
                                     {/* Telefone */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="telefone" className="text-gray-800 font-medium">Telefone</Label>
-                                        <Input id="telefone" name="telefone" placeholder="(00) 00000-0000" value={formData.telefone} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2]" />
+                                        <Label htmlFor="telefone" className="text-gray-800 font-medium">Telefone <span className="text-red-500">*</span></Label>
+                                        <Input id="telefone" name="telefone" required placeholder="(00) 00000-0000" value={formData.telefone} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2]" />
                                     </div>
 
                                     {/* Sexo */}
@@ -133,10 +187,11 @@ export default function CadastroPaciente() {
 
                                     {/* Condição */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="condicao" className="text-gray-800 font-medium">Condição de Saúde</Label>
+                                        <Label htmlFor="condicao" className="text-gray-800 font-medium">Condição de Saúde <span className="text-red-500">*</span></Label>
                                         <select
                                             id="condicao"
                                             name="condicao"
+                                            required
                                             value={formData.condicao}
                                             onChange={handleChange}
                                             className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1976d2] focus-visible:ring-offset-2 text-gray-700"
@@ -151,23 +206,40 @@ export default function CadastroPaciente() {
 
                                     {/* Endereço */}
                                     <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="endereco" className="text-gray-800 font-medium">Endereço Completo</Label>
-                                        <Input id="endereco" name="endereco" placeholder="Rua, Número, Complemento, Bairro, CEP" value={formData.endereco} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2]" />
+                                        <Label htmlFor="endereco" className="text-gray-800 font-medium">Endereço Completo <span className="text-red-500">*</span></Label>
+                                        <Input id="endereco" name="endereco" required placeholder="Rua, Número, Complemento, Bairro, CEP" value={formData.endereco} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2]" />
                                     </div>
 
-                                    {/* Microárea ID */}
+                                    {/* Microárea: SELECT DINÂMICO */}
                                     <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="microarea_id" className="text-gray-800 font-medium">Identificador da Microárea</Label>
-                                        <Input id="microarea_id" name="microarea_id" placeholder="Ex: uuid-da-microarea" value={formData.microarea_id} onChange={handleChange} className="border-gray-300 h-11 focus-visible:ring-[#1976d2]" />
+                                        <Label htmlFor="microarea_id" className="text-gray-800 font-medium">
+                                            Microárea de Abrangência <span className="text-red-500">*</span>
+                                        </Label>
+                                        <select
+                                            id="microarea_id"
+                                            name="microarea_id"
+                                            required
+                                            value={formData.microarea_id}
+                                            onChange={handleChange}
+                                            className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1976d2] focus-visible:ring-offset-2 text-gray-700"
+                                        >
+                                            <option value="" disabled>Selecione a microárea do paciente</option>
+                                            {microareas.map((micro) => (
+                                                <option key={micro.id} value={micro.id}>
+                                                    {micro.nome}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
 
+                                {/* Botões */}
                                 <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6 mt-8 border-t border-gray-200">
-                                    <Button type="button" variant="outline" asChild className="border-gray-300 text-gray-700 hover:bg-gray-100 h-11 px-8 text-base font-medium">
+                                    <Button type="button" variant="outline" asChild disabled={loading} className="border-gray-300 text-gray-700 hover:bg-gray-100 h-11 px-8 text-base font-medium">
                                         <Link href="/paciente">Cancelar</Link>
                                     </Button>
-                                    <Button type="submit" className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-8 text-base font-medium shadow-sm transition-colors">
-                                        Salvar Paciente
+                                    <Button type="submit" disabled={loading} className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-8 text-base font-medium shadow-sm transition-colors">
+                                        {loading ? "Salvando..." : "Salvar Paciente"}
                                     </Button>
                                 </div>
                             </form>
