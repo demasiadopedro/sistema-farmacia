@@ -47,7 +47,6 @@ export default async function AppHome() {
         <main className='sm:ml-56 min-h-screen bg-gray-50 flex flex-col'>
             <div className='relative flex items-center bg-white border-b border-gray-200 p-4 h-16 shadow-sm shrink-0'>
                 <Sidebar />
-                {/* 4. Coloca o nome do vivente aqui */}
                 <h1 className='text-2xl font-bold text-[#003967] whitespace-nowrap tracking-tight'>
                     Olá, {userName}!
                 </h1>
