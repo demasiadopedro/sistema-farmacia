@@ -2,9 +2,37 @@ import Sidebar from '@/components/sidebar'
 import { ChevronRight, Users, ClipboardList, User, PillBottle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader } from "@/components/ui/card";
-import ChartOverview from '@/components/chart';
-import Retiradas from '@/components/retiradas';
+import ChartOverview from './components/chart';
+import Retiradas from './components/retiradas';
 import { cookies } from 'next/headers';
+
+export interface MedicamentoData {
+    id: string;
+    nome: string;
+}
+
+export interface EstoqueData {
+    id: string;
+    medicamento: MedicamentoData;
+}
+
+export interface ItemDispensadoData {
+    id: string;
+    quantidade: number;
+    estoque: EstoqueData;
+}
+
+export interface PacienteData {
+    id: string;
+    nome: string;
+}
+
+export interface DispensacaoData {
+    id: string;
+    data_entrega: string;
+    paciente: PacienteData | null;
+    itens: ItemDispensadoData[];
+}
 
 const actionCards = [
     {
@@ -30,16 +58,38 @@ const actionCards = [
 ];
 
 export default async function AppHome() {
-    const userInfoString = (await cookies()).get('UserInfo')?.value;
+    const cookieStore = await cookies();
+    const userInfoString = cookieStore.get('UserInfo')?.value;
+    const token = cookieStore.get('session_token')?.value;
     
     let userName = "Usuário";
+    let dispensacoes: DispensacaoData[] = [];
 
-    if (userInfoString) {
+    if (userInfoString && token) {
         try {
             const userInfo = JSON.parse(userInfoString);
             userName = userInfo.nome || "Usuário"; 
+
+            if (userInfo.id_unidade) {
+                const response = await fetch(`http://localhost:3333/dispensation/unidade/${userInfo.id_unidade}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    cache: 'no-store'
+                });
+                console.log(response)
+                console.log('-------------------------------------------------')
+                console.log(userInfo)
+                console.log('-------------------------------------------------')
+                console.log(userInfo.id_unidade)
+                
+
+                if (response.ok) {
+                    dispensacoes = await response.json();
+                }
+            }
         } catch (error) {
-            console.error("Erro ao ler o JSON do cookie UserInfo:", error);
+            console.error(error);
         }
     }
 
@@ -80,10 +130,10 @@ export default async function AppHome() {
 
             <section className='grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 md:p-8 flex-1'>
                 <div className="lg:col-span-2">
-                    <ChartOverview />
+                    <ChartOverview data={dispensacoes} />
                 </div>
                 <div className="lg:col-span-1">
-                    <Retiradas />
+                    <Retiradas data={dispensacoes} />
                 </div>
             </section>
         </main>

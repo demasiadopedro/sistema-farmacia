@@ -21,7 +21,7 @@ import { RoleGuard } from '../auth/role/role.guard';
 export class DispensationController {
 	constructor(private readonly dispensationService: DispensationService) {}
 
-	@Get('unidade/:id')
+	@Get('/unidade/:id')
 	findAllByUnidade(@Param('id', ParseUUIDPipe) id: string) {
 		return this.dispensationService.findAllByUnidade(id);
 	}
