@@ -18,6 +18,9 @@ export class StockService {
 			where: {
 				id_unidade_saude: id,
 			},
+			include: {
+				medicamento: true,
+			},
 		});
 	}
 
