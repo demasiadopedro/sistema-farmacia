@@ -1,4 +1,3 @@
-// dispensation.service.ts
 import {
 	Injectable,
 	BadRequestException,
@@ -95,8 +94,8 @@ export class DispensationService {
 				});
 			},
 			{
-				maxWait: 5000, // Tempo máximo esperando para conectar (5s)
-				timeout: 10000, // Tempo máximo para a transação inteira rodar (10s)
+				maxWait: 5000,
+				timeout: 10000,
 			},
 		);
 	}
@@ -161,9 +160,36 @@ export class DispensationService {
 				};
 			},
 			{
-				maxWait: 5000, // Tempo máximo esperando para conectar (5s)
-				timeout: 10000, // Tempo máximo para a transação inteira rodar (10s)
+				maxWait: 5000,
+				timeout: 10000,
 			},
 		);
+	}
+
+	async findAllByUnidade(unidadeId: string) {
+		return this.prisma.dispensacao.findMany({
+			where: {
+				usuario: {
+					id_unidade_pertecente: unidadeId,
+				},
+			},
+			orderBy: {
+				data_entrega: 'desc',
+			},
+			take: 20,
+			include: {
+				paciente: true,
+				usuario: true,
+				itens: {
+					include: {
+						estoque: {
+							include: {
+								medicamento: true,
+							},
+						},
+					},
+				},
+			},
+		});
 	}
 }

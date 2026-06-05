@@ -1,5 +1,6 @@
 import {
 	Controller,
+	Get,
 	Post,
 	Body,
 	Param,
@@ -20,10 +21,16 @@ import { RoleGuard } from '../auth/role/role.guard';
 export class DispensationController {
 	constructor(private readonly dispensationService: DispensationService) {}
 
+	@Get('unidade/:id')
+	findAllByUnidade(@Param('id', ParseUUIDPipe) id: string) {
+		return this.dispensationService.findAllByUnidade(id);
+	}
+
 	@Post()
 	create(@Body() createDispensationDto: CreateDispensationDto) {
 		return this.dispensationService.create(createDispensationDto);
 	}
+
 	@Post(':id/reverse')
 	reverseDispensation(
 		@Param('id', ParseUUIDPipe) id: string,
