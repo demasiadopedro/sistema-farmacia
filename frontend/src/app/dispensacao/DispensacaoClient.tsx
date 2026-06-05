@@ -20,11 +20,18 @@ export interface Paciente {
   cpf: string;
 }
 
-interface DispensacaoClientProps {
-  pacientes: Paciente[];
+export interface MedicamentoEstoque {
+  id: string;
+  nome: string;
+  quantidadeTotal: number;
 }
 
-export default function DispensacaoClient({ pacientes }: DispensacaoClientProps) {
+interface DispensacaoClientProps {
+  pacientes: Paciente[];
+  medicamentos: MedicamentoEstoque[];
+}
+
+export default function DispensacaoClient({ pacientes = [], medicamentos = [] }: DispensacaoClientProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usoContinuo, setUsoContinuo] = useState(false);
@@ -32,7 +39,11 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
 
   const [buscaPaciente, setBuscaPaciente] = useState("");
   const [dropdownAberto, setDropdownAberto] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownPacRef = useRef<HTMLDivElement>(null);
+
+  const [buscaMedicamento, setBuscaMedicamento] = useState("");
+  const [dropdownMedAberto, setDropdownMedAberto] = useState(false);
+  const dropdownMedRef = useRef<HTMLDivElement>(null);
 
   const [prescricao, setPrescricao] = useState({
     id_paciente: "",
@@ -53,10 +64,17 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
     p.cpf.includes(buscaPaciente)
   );
 
+  const medicamentosFiltrados = medicamentos.filter(m =>
+    m.nome.toLowerCase().includes(buscaMedicamento.toLowerCase())
+  );
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownPacRef.current && !dropdownPacRef.current.contains(event.target as Node)) {
         setDropdownAberto(false);
+      }
+      if (dropdownMedRef.current && !dropdownMedRef.current.contains(event.target as Node)) {
+        setDropdownMedAberto(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -65,8 +83,8 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
 
   function handlePrescricaoSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!prescricao.id_paciente) {
-        setError("Por favor, selecione um paciente válido da lista.");
+    if (!prescricao.id_paciente || !prescricao.id_medicamento) {
+        setError("Por favor, selecione um paciente e um medicamento válidos da lista.");
         return;
     }
     setStep("dispensacao");
@@ -103,7 +121,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
 
   return (
     <main className="sm:ml-56 min-h-screen bg-white">
-      {/* topbar */}
       <div className='relative flex items-center bg-gray-50 border-b border-gray-200 p-4 h-16'>
         <Sidebar />
         <h1 className="text-xl font-semibold text-[#003967] whitespace-nowrap">
@@ -111,7 +128,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
         </h1>
       </div>
 
-      {/* Stepper */}
       <div className="flex items-center gap-2 px-6 py-5">
         <div className={`flex items-center gap-2 text-sm font-medium ${step === "prescricao" ? "text-[#1976d2]" : "text-green-600"}`}>
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${step === "prescricao" ? "bg-[#1976d2]" : "bg-green-500"}`}>
@@ -135,7 +151,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
             </div>
         )}
 
-        {/* Prescrição */}
         {step === "prescricao" && (
           <Card className="rounded-xl border border-gray-100">
             <CardHeader className="pb-2 border-b border-gray-100">
@@ -148,8 +163,7 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
             <CardContent className="pt-5">
               <form onSubmit={handlePrescricaoSubmit} className="flex flex-col gap-5">
                 
-                {/* Paciente com Busca Inteligente (Autocomplete) */}
-                <div className="flex flex-col gap-1.5 relative" ref={dropdownRef}>
+                <div className="flex flex-col gap-1.5 relative" ref={dropdownPacRef}>
                   <Label className="text-sm font-medium text-[#003967]">Paciente</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -161,7 +175,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                       onChange={(e) => {
                         setBuscaPaciente(e.target.value);
                         setDropdownAberto(true);
-                        // Se apagar o que estava selecionado, limpamos o UUID
                         if (prescricao.id_paciente) {
                             setPrescricao(p => ({ ...p, id_paciente: "" }));
                         }
@@ -170,7 +183,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                     />
                   </div>
 
-                  {/* Lista Suspensa (Dropdown) */}
                   {dropdownAberto && buscaPaciente.length > 0 && (
                     <ul className="absolute z-10 top-[70px] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {pacientesFiltrados.length > 0 ? (
@@ -178,7 +190,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                           <li
                             key={paciente.id}
                             onClick={() => {
-                              // Ao clicar: Salva o UUID invisível e exibe o nome no input
                               setPrescricao(p => ({ ...p, id_paciente: paciente.id }));
                               setBuscaPaciente(`${paciente.nome || "Sem Nome"} (CPF: ${paciente.cpf})`);
                               setDropdownAberto(false);
@@ -198,25 +209,52 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                   )}
                 </div>
 
-                {/* Medicamento (Ainda mockado)) */}
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1.5 relative" ref={dropdownMedRef}>
                   <Label className="text-sm font-medium text-[#003967]">Medicamento</Label>
-                  <select
-                    required
-                    className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 bg-white focus:outline-none focus:ring-[#1976d2]"
-                    value={prescricao.id_medicamento}
-                    onChange={(e) => {
-                        const nome = e.target.options[e.target.selectedIndex].text;
-                        setPrescricao(p => ({ ...p, id_medicamento: e.target.value, medicamentoNome: nome }));
-                    }}
-                  >
-                    <option value="">Selecione o medicamento...</option>
-                    <option value="d862e31e-4503-4c91-bed7-bd4971c26bdf">Losartana 50mg</option>
-                    <option value="e962e31e-4503-4c91-bed7-bd4971c26abc">Insulina NPH</option>
-                  </select>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <Input
+                      required={!prescricao.id_medicamento}
+                      placeholder="Buscar medicamento em estoque..."
+                      className="pl-10 rounded-lg border-gray-300 h-10 w-full"
+                      value={buscaMedicamento}
+                      onChange={(e) => {
+                        setBuscaMedicamento(e.target.value);
+                        setDropdownMedAberto(true);
+                        if (prescricao.id_medicamento) {
+                            setPrescricao(p => ({ ...p, id_medicamento: "", medicamentoNome: "" }));
+                        }
+                      }}
+                      onFocus={() => setDropdownMedAberto(true)}
+                    />
+                  </div>
+
+                  {dropdownMedAberto && buscaMedicamento.length > 0 && (
+                    <ul className="absolute z-10 top-[70px] w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {medicamentosFiltrados.length > 0 ? (
+                        medicamentosFiltrados.map((med) => (
+                          <li
+                            key={med.id}
+                            onClick={() => {
+                              setPrescricao(p => ({ ...p, id_medicamento: med.id, medicamentoNome: med.nome }));
+                              setBuscaMedicamento(med.nome);
+                              setDropdownMedAberto(false);
+                            }}
+                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
+                          >
+                            <p className="text-sm font-medium text-[#003967]">{med.nome}</p>
+                            <p className="text-xs text-green-600 font-medium">Estoque total: {med.quantidadeTotal} unidades</p>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="px-4 py-3 text-sm text-gray-500 text-center">
+                          Medicamento indisponível no estoque.
+                        </li>
+                      )}
+                    </ul>
+                  )}
                 </div>
 
-                {/* Via administração */}
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-sm font-medium text-[#003967]">Via de Administração</Label>
                   <select
@@ -230,7 +268,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                   </select>
                 </div>
 
-                {/* Quantidade prescrita */}
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-sm font-medium text-[#003967]">Quantidade Prescrita</Label>
                   <Input
@@ -241,7 +278,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                   />
                 </div>
 
-                {/* Toggles */}
                 <div className="flex flex-col gap-3 pt-1">
                   <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
                     <div>
@@ -266,7 +302,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
           </Card>
         )}
 
-        {/* Dispensação */}
         {step === "dispensacao" && (
           <div className="flex flex-col gap-4">
             <Card className="rounded-xl border border-[#1976d2]/30 bg-[#e3f2fd] shadow-sm">
@@ -275,7 +310,7 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                 <div className="flex items-center gap-3">
                   <Pill className="w-5 h-5 text-[#1976d2]" />
                   <div>
-                    <p className="text-sm font-semibold text-[#003967]">{prescricao.medicamentoNome || "Medicamento Selecionado"}</p>
+                    <p className="text-sm font-semibold text-[#003967]">{prescricao.medicamentoNome}</p>
                     <p className="text-xs text-gray-600">{prescricao.viaAdministracao} · {prescricao.quantidade} unidades · {usoContinuo ? " Uso contínuo" : " Uso não contínuo"}</p>
                     <p className="text-xs text-gray-500 mt-1 font-medium">Para: {buscaPaciente}</p>
                   </div>
@@ -293,7 +328,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
               <CardContent className="pt-5">
                 <form onSubmit={handleDispensacaoSubmit} className="flex flex-col gap-5">
                   
-                  {/* Data de entrega */}
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium text-[#003967]">Data de Entrega</Label>
                     <Input
@@ -303,7 +337,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                     />
                   </div>
 
-                  {/* Quantidade entregue */}
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium text-[#003967]">Quantidade Entregue</Label>
                     <Input
@@ -314,7 +347,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                     />
                   </div>
 
-                  {/* Próxima retirada */}
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium text-[#003967]">Estimativa da Próxima Retirada</Label>
                     <Input
@@ -338,7 +370,6 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
           </div>
         )}
 
-        {/* Sucesso */}
         {step === "sucesso" && ( 
             <Card className="rounded-xl border border-green-200 shadow-sm">
                 <CardContent className="pt-8 pb-8 flex flex-col items-center gap-4 text-center">
@@ -365,6 +396,7 @@ export default function DispensacaoClient({ pacientes }: DispensacaoClientProps)
                         setDispensacao({ dataEntrega: new Date().toISOString().split('T')[0], quantidadeEntregue: "", proximaRetirada: "" });
                         setUsoContinuo(false);
                         setBuscaPaciente("");
+                        setBuscaMedicamento("");
                     }}
                         className="mt-2 bg-[#1976d2] hover:bg-[#1565c0] text-white rounded-lg h-10 px-8"    
                     >

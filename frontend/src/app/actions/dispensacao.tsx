@@ -3,22 +3,32 @@
 import { cookies } from "next/headers";
 
 export async function registrarDispensacaoAction(formData: FormData) {
-  const token =( await cookies()).get("session_token")?.value;
-  
+  const token = (await cookies()).get("session_token")?.value;
+
   if (!token) {
     return { error: "Usuário não autenticado." };
   }
 
-  const id_usuario = "COLOQUE_AQUI_A_LOGICA_DE_EXTRAIR_O_ID_DO_TOKEN"; 
+  let id_usuario;
+  
+  const userInfoString = (await cookies()).get('UserInfo')?.value;
+  if (userInfoString) {
+    try {
+      const userInfo = JSON.parse(userInfoString);
+      id_usuario = userInfo.user.id
 
+    } catch (error) {
+      console.error("Erro ao ler o JSON do cookie UserInfo:", error);
+    }
+  }
   const id_paciente = formData.get("id_paciente");
   const id_medicamento = formData.get("id_medicamento");
   const via_administracao = formData.get("via_administracao");
   const quantidade_receitada = Number(formData.get("quantidade_receitada"));
   const uso_continuo = formData.get("uso_continuo") === "true";
-  
-  const proxima_retirada = formData.get("proxima_retirada") 
-    ? new Date(formData.get("proxima_retirada") as string).toISOString() 
+
+  const proxima_retirada = formData.get("proxima_retirada")
+    ? new Date(formData.get("proxima_retirada") as string).toISOString()
     : null;
   const quantidade_solicitada = Number(formData.get("quantidade_entregue"));
 
@@ -57,7 +67,7 @@ export async function registrarDispensacaoAction(formData: FormData) {
         id_medicamento,
         proxima_retirada,
         id_prescricao: prescriptionData.id,
-        id_usuario, 
+        id_usuario,
         id_paciente,
       }),
     });

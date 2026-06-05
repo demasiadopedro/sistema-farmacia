@@ -61,6 +61,7 @@ export class AuthService {
 		return {
 			message: 'usuario logado',
 			access_token: acessToken,
+			user_id: user.id,
 			email: user.email,
 			role: user.role,
 			nome: user.nome,
