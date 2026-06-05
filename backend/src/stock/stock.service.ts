@@ -13,6 +13,14 @@ export class StockService {
 		});
 	}
 
+	async findByUnidade(id: string) {
+		return this.prisma.estoque.findMany({
+			where: {
+				id_unidade_saude: id,
+			},
+		});
+	}
+
 	async findAll() {
 		return this.prisma.estoque.findMany();
 	}

@@ -33,6 +33,11 @@ export class StockController {
 		return this.stockService.findAll();
 	}
 
+	@Get('/unidade/:id')
+	findByUnidade(@Param('id', ParseUUIDPipe) id: string) {
+		return this.stockService.findByUnidade(id);
+	}
+
 	@Get(':id')
 	findOne(@Param('id', ParseUUIDPipe) id: string) {
 		return this.stockService.findOne(id);
