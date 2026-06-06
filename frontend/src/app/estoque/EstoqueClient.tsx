@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
-import { Search, Plus, Edit, Trash2, AlertTriangle, Info } from "lucide-react";
+import { Search, Plus, Edit, Trash2, AlertTriangle, Info, X } from "lucide-react";
+import FormularioLote, { MedicamentoOption } from "./components/ModalNovoLote";
 
 export interface EstoqueData {
     id: string;
@@ -21,10 +22,12 @@ export interface EstoqueData {
 
 interface EstoqueClientProps {
     estoqueInicial: EstoqueData[];
+    medicamentosExistentes: MedicamentoOption[];
 }
 
-export default function EstoqueClient({ estoqueInicial }: EstoqueClientProps) {
+export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }: EstoqueClientProps) {
     const [searchTerm, setSearchTerm] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const getQuantidadeStatus = (qtd: number) => {
         if (qtd <= 50) return { label: "Crítico", color: "text-red-700 bg-red-100 border-red-200" };
@@ -34,7 +37,7 @@ export default function EstoqueClient({ estoqueInicial }: EstoqueClientProps) {
 
     const getValidadeStatus = (dataValidade: string | null) => {
         if (!dataValidade) return { label: "Sem data", color: "text-gray-500 bg-gray-100 border-gray-200", icon: null };
-        
+
         const hoje = new Date();
         const validade = new Date(dataValidade);
         const diferencaTempo = validade.getTime() - hoje.getTime();
@@ -49,7 +52,7 @@ export default function EstoqueClient({ estoqueInicial }: EstoqueClientProps) {
         const nomeMed = item.medicamento?.nome?.toLowerCase() || "";
         const loteMed = item.lote?.toLowerCase() || "";
         const busca = searchTerm.toLowerCase();
-        
+
         return nomeMed.includes(busca) || loteMed.includes(busca);
     });
 
@@ -75,7 +78,10 @@ export default function EstoqueClient({ estoqueInicial }: EstoqueClientProps) {
                         </div>
                     </Field>
 
-                    <Button className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center w-full md:w-auto shadow-sm transition-colors">
+                    <Button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center w-full md:w-auto shadow-sm transition-colors"
+                    >
                         <Plus className="w-5 h-5" />
                         Novo Medicamento
                     </Button>
@@ -158,6 +164,32 @@ export default function EstoqueClient({ estoqueInicial }: EstoqueClientProps) {
                     </div>
                 </Card>
             </div>
+            {isModalOpen && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+                    onClick={() => setIsModalOpen(false)}
+                >
+                    <div
+                        className="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >   
+                        {/* <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button> */}
+
+                        <div className="p-7">
+                            <FormularioLote
+                                medicamentosExistentes={medicamentosExistentes}
+                                onClose={() => setIsModalOpen(false)} />
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </main>
     )
 }

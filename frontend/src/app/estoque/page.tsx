@@ -12,30 +12,41 @@ export default async function EstoquePage() {
         try {
             const userInfo = JSON.parse(userInfoString);
             // console.log("[*] CONTEÚDO DO USERINFO:", userInfo);
-            unidadeId = userInfo.id_unidade; 
+            unidadeId = userInfo.id_unidade;
         } catch (error) {
             console.error("Erro ao ler o JSON do cookie UserInfo:", error);
         }
     }
 
     if (!token || !unidadeId) {
-        return <EstoqueClient estoqueInicial={[]} />;
+        return <EstoqueClient
+            estoqueInicial={[]}
+            medicamentosExistentes={[]}
+        />;
     }
 
     const response = await fetch(`http://localhost:3333/stock/unidade/${unidadeId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         },
-        cache: 'no-store' 
+        cache: 'no-store'
     });
 
-        if (!response.ok) {
+    if (!response.ok) {
         console.log("[*] ERRO DO NESTJS!!!:", response.status, await response.text());
     }
+
+    const medicamentosResponse = await fetch("http://localhost:3333/remedy", {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const medicamentos = await medicamentosResponse.json();
 
 
     const estoqueData = response.ok ? await response.json() : [];
     // console.log("[*] DADOS RECEBIDOS DO BACKEND:", estoqueData);
 
-    return <EstoqueClient estoqueInicial={estoqueData} />;
+    return <EstoqueClient
+        estoqueInicial={estoqueData}
+        medicamentosExistentes={medicamentos}
+    />;
 }
