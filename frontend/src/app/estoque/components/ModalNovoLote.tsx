@@ -36,11 +36,18 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
     const [lote, setLote] = useState("");
     const [quantidade, setQuantidade] = useState("");
     const [dataValidade, setDataValidade] = useState("");
-
+    
+    const [buscaMedicamento, setBuscaMedicamento] = useState("");
+    const [dropdownAberto, setDropdownAberto] = useState(false);
+    
     const isNovoMedicamento = idMedicamentoSelecionado === "NOVO";
     const [novoNome, setNovoNome] = useState("");
     const [novaCategoria, setNovaCategoria] = useState("HIPERTENSAO");
     const [novaForma, setNovaForma] = useState("COMPRIMIDO");
+
+    const medicamentosFiltrados = medicamentosExistentes.filter(
+        (med) => med.nome.toLowerCase().includes(buscaMedicamento.toLowerCase())
+    );
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -77,7 +84,7 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
             setError(resultLote.error);
         } else {
             setSucesso(true);
-            // window.location.reload(); // Removido para teste de layout
+            window.location.reload();
         }
 
         setLoading(false);
@@ -90,33 +97,65 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
             {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
             {sucesso && <div className="text-green-600 text-sm font-semibold">Lote cadastrado com sucesso!</div>}
 
-            {/* SELEÇÃO DE MEDICAMENTO */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
                 <Label className="text-base font-semibold">Medicamento</Label>
-                <select
-                    className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus:ring-2 focus:ring-blue-500 outline-none"
-                    value={idMedicamentoSelecionado}
-                    onChange={(e) => setIdMedicamentoSelecionado(e.target.value)}
-                    required
-                >
-                    <option value="" disabled>Selecione um medicamento...</option>
-                    {medicamentosExistentes.map((med) => (
-                        <option key={med.id} value={med.id}>
-                            {med.nome}
-                        </option>
-                    ))}
-                    <option value="NOVO" className="font-bold text-blue-600">
-                        + Cadastrar Novo Medicamento
-                    </option>
-                </select>
+                <Input 
+                    type="text"
+                    placeholder="Ex: Insulina"
+                    value={buscaMedicamento}
+                    className="h-12 text-base w-full rounded-md"
+                    onChange={(e) => {
+                        setBuscaMedicamento(e.target.value)
+                        setDropdownAberto(true)
+                        if (idMedicamentoSelecionado !== 'NOVO') {
+                            setIdMedicamentoSelecionado("");
+                        }
+                    }}
+                    onFocus={() => setDropdownAberto(true)}
+                    onBlur={() => setTimeout(() => setDropdownAberto(false), 200)}
+                />
+            
+                {dropdownAberto && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        
+                        {medicamentosFiltrados.length > 0 ? (
+                            medicamentosFiltrados.map((med) => (
+                                <div
+                                    key={med.id}
+                                    className="px-4 py-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 text-slate-700"
+                                    onClick={() => {
+                                        setIdMedicamentoSelecionado(med.id);
+                                        setBuscaMedicamento(med.nome);
+                                        setDropdownAberto(false);
+                                    }}
+                                >
+                                    {med.nome}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-4 py-3 text-gray-500 italic border-b border-gray-100">
+                                Nenhum medicamento encontrado.
+                            </div>
+                        )}
+                        
+                        <div
+                            className="px-4 py-3 cursor-pointer text-blue-600 font-bold hover:bg-blue-50 bg-gray-50 sticky bottom-0"
+                            onClick={() => {
+                                setIdMedicamentoSelecionado("NOVO");
+                                setBuscaMedicamento("Criando Novo Medicamento..."); 
+                                setDropdownAberto(false);
+                            }}
+                        >
+                            + Cadastrar Novo Medicamento
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* DETALHES DO NOVO MEDICAMENTO */}
             {isNovoMedicamento && (
-                <div className=" p-4 border  rounded-md grid gap-y-6 mt-2">
-                    {/* <h3 className="font-bold text-lg text-slate-800">Detalhes do Novo Medicamento</h3> */}
-
-                    <div className="space-y-2 mt- 2">
+                <div className=" p-4 border rounded-md grid gap-y-6 mt-2">
+                    <div className="space-y-2 mt-2">
                         <Label className="text-base ">Nome do Medicamento</Label>
                         <Input
                             placeholder="Ex: Losartana 50mg"
@@ -187,6 +226,7 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                     </div>
                 </div>
             </div>
+            
             <div className="space-y-2">
                 <Label className="text-base">Validade</Label>
                 <Input
@@ -197,6 +237,7 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                     required
                 />
             </div>
+            
             <Button type="submit" className="w-full h-12 rounded-md mt-8 bg-[#1976d2] hover:bg-[#1565c0] text-white transition-colors text-lg shadow-sm font-semibold" disabled={loading}>
                 {loading ? "Salvando..." : "Registrar Entrada no Estoque"}
             </Button>
