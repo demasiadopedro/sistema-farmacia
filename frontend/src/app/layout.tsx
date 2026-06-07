@@ -1,11 +1,14 @@
 "Server Component";
 
 import "./globals.css";
-import { JetBrains_Mono } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import {  cn  } from "@/lib/utils";
 
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
-
+const openSans = Open_Sans({
+  subsets:['latin'],
+  variable:'--font-mono'
+});
+ 
 
 export default function RootLayout({
   children,
@@ -18,9 +21,10 @@ export default function RootLayout({
       className={`antialiased`}
     >
       <body className={cn(
-        "min-h-screen bg-background font-poppins antialeased"
+        "min-h-screen bg-background antialeased",
+        openSans.className
       )        
-      }>
+      } >
         {children}
       </body>
     </html>
