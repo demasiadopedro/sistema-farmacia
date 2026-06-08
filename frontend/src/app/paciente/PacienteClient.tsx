@@ -129,25 +129,30 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                             className="shrink-0 w-10 h-10 flex gap-4 items-center justify-center rounded-full bg-transparent border-[#1976d2] sm:bg-transparent text-[#1976d2] hover:bg-blue-50">
                             <Search />
                         </Button>
+                        <Button variant="default" className="bg-[#1976d2] h-full text-white hover:bg-[#1565c0] rounded-lg">
+                            <Link href="/paciente/cadastro" className="text-[18px] font-medium">Cadastrar Paciente</Link>
+                        </Button>
                     </Field>
+
                 </section>
 
                 {/* RESULTADO DA BUSCA / LISTAGEM */}
-                <div className="mt-8 w-full max-w-lg flex flex-col gap-4">
+                <div className="mt-8 w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {pacientesFiltrados.length > 0 ? (
                         pacientesFiltrados.map((paciente) => (
-                            <Link key={paciente.id} href={`/paciente/perfil?id=${paciente.id}`} className="block group">                                <Card className="border-l-4 border-l-[#1976d2] shadow-md overflow-hidden bg-white transition-all duration-200 hover:shadow-lg hover:border-l-blue-600 cursor-pointer group-hover:-translate-y-1">
-                                <CardContent className="p-5 flex flex-col gap-1">
-                                    <div className="flex justify-between items-center w-full">
-                                        <h2 className="text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{paciente.nome}</h2>
-                                        <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Ver perfil</span>
-                                    </div>
-                                    <div className="mt-3 flex flex-col gap-1">
-                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {paciente.cpf}</p>
-                                        <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {paciente.cns}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <Link key={paciente.id} href={`/paciente/perfil?id=${paciente.id}`} className="h-full block group">
+                                <Card className="border-l-4 border-l-[#1976d2] shadow-md overflow-hidden w-full h-full bg-white transition-all duration-200 hover:shadow-lg hover:border-l-blue-600 cursor-pointer group-hover:-translate-y-1">
+                                    <CardContent className="p-5 flex flex-col gap-1">
+                                        <div className="flex justify-between items-center w-full">
+                                            <h2 className="flex-1 text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{paciente.nome}</h2>
+                                            <span className=" shrink-0  whitespace-nowrap text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Ver perfil</span>
+                                        </div>
+                                        <div className="mt-3 flex flex-col gap-1">
+                                            <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {paciente.cpf}</p>
+                                            <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {paciente.cns}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </Link>
                         ))
                     ) : (
@@ -160,16 +165,6 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                 </div>
             </div>
 
-            {/* BOTÃO PARA CADASTRAR PACIENTE */}
-            <div className="relative flex items-center justify-center">
-                <div className="p-4">
-                    <section className="w-full min-h-screen">
-                        <Button variant="default" className="bg-[#1976d2] text-white hover:bg-[#1565c0] rounded-lg">
-                            <Link href="/paciente/cadastro" className="text-[18px] font-medium">Cadastrar Paciente</Link>
-                        </Button>
-                    </section>
-                </div>
-            </div>
         </main>
     )
 }
