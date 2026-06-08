@@ -62,10 +62,16 @@ function formatarData(dataIso: string | null | undefined): string {
 }
 
 export default async function PerfilPaciente({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+    // 1. Log inicial para saber se a página ao menos abriu
+    console.log("🔥 [TESTE] A página PerfilPaciente carregou!"); 
+    
     const params = await searchParams;
     const idParam = params.id;
 
+    console.log("[*] ID recebido da URL:", idParam);
+
     if (!idParam) {
+        console.log("[*] ID vazio! Redirecionando...");
         redirect("/paciente");
     }
 
@@ -73,6 +79,8 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
 
     let pacienteDb: PacienteDb | null = null;
     let responseOk = false;
+    
+    console.log(`[*] Iniciando fetch para o ID: ${idParam}`);
 
     try {
         const response = await fetch(`http://localhost:3333/pacientes/${idParam}`, {
@@ -91,7 +99,6 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
     } catch (error: unknown) {
         responseOk = false;
     }
-
     if (!responseOk || !pacienteDb) {
         return (
             <div className="p-8 flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -114,6 +121,7 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
             dosagem: `${prescricao.quantidade_receitada} ${unidade}${via}`
         };
     });
+    console.log(pacienteDb)
 
     const listaDispensacoes = pacienteDb.dispensacoes || [];
     const ultimaDispensacao = listaDispensacoes.length > 0 
@@ -132,7 +140,6 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
         ultimaRetirada: ultimaDispensacao ? formatarData(ultimaDispensacao.data_entrega) : "Nenhuma retirada registrada",
         proximaRetirada: ultimaDispensacao && ultimaDispensacao.proxima_retirada ? formatarData(ultimaDispensacao.proxima_retirada) : "-",
     };
-
     return (
         <main className="sm:ml-56 min-h-screen bg-gray-50 flex flex-col">
             <div className="relative flex items-center bg-white border-b border-gray-200 p-4 h-16 shrink-0 shadow-sm z-10">

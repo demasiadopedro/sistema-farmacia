@@ -17,9 +17,6 @@ export class PatientService {
 					unidade_saude_id: id,
 				},
 			},
-			include: {
-				dispensacoes: true,
-			},
 		});
 	}
 
@@ -41,8 +38,14 @@ export class PatientService {
 	}
 
 	async buscarPatient(idParam: string) {
-		const busca = { where: { id: idParam } };
-		const paciente = await this.prisma.paciente.findUnique(busca);
+		// const busca = { where: { id: idParam } };
+		const paciente = await this.prisma.paciente.findUnique({
+			where: { id: idParam },
+			include: {
+				dispensacoes: true,
+				prescricaos: { include: { medicamento: true } },
+			},
+		});
 		if (!paciente) this.throwNotFound();
 		return paciente;
 	}
