@@ -20,6 +20,8 @@ export default async function PacientePage() {
         cache: "no-store"
     })
 
+
+
     if (!response.ok) {
         console.log("[*] ERRO DO NESTJS!!!:", response.status, await response.text());
         return <PacienteClient pacientesIniciais={[]} />;

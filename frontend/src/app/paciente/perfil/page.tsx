@@ -175,9 +175,12 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
                                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1"><MapPin className="w-3 h-3" /> Endereço</span>
                                 <p className="text-sm text-gray-700 leading-relaxed">{paciente.endereco}</p>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Contato</span>
+                            <div className="grid grid-cols-2 gap-1">
+                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Contato:</span>
                                 <p className="text-sm text-gray-700">{paciente.telefone}</p>
+                                <Link href={`https://wa.me/${paciente.telefone}`}>
+                                    <span className="bg-green-500 text-white rounded-2xl w-1"> Falar no WhatsApp</span>
+                                </Link>
                             </div>
                         </CardContent>
                     </Card>
