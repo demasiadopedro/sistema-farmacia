@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, ChevronRight, ClipboardList, Pill, Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { registrarDispensacaoAction } from "@/app/actions/dispensacao";
+import { registrarDispensacaoAction } from "../../actions/dispensacao";
 
 const viasAdministracao = [
   "Oral", "Injetável", "Sublingual", "Tópica",

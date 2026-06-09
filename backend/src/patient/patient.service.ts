@@ -17,6 +17,7 @@ export class PatientService {
 					unidade_saude_id: id,
 				},
 			},
+			include: { dispensacoes: true },
 		});
 	}
 

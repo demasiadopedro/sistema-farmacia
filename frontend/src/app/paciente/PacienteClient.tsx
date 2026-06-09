@@ -8,8 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
 
+import { Card, CardContent } from "@/components/ui/card";
+interface DispensacaoDb {
+    id: string;
+    data_entrega: string;
+    proxima_retirada: string | null;
+}
 export interface PacienteData {
     id: string;
     nome: string | null;
@@ -21,10 +26,43 @@ export interface PacienteData {
     condicao: string | null;
     sexo: string | null;
     microarea_id: string | null;
+    dispensacoes?: DispensacaoDb[];
+
 }
 
 interface PacienteClientProps {
     pacientesIniciais: PacienteData[];
+}
+
+function corVencimento(dataVencimento: string | null | undefined) {
+    if (!dataVencimento || dataVencimento === "-") {
+        return 'border-gray-300 hover:border-gray-400 bg-gray-300'; // adicionei bg- caso use no Perfil
+    }
+
+    const hoje = new Date();
+    const vencimento = new Date(dataVencimento);
+
+    // Evita crash se a data vier zuada
+    if (isNaN(vencimento.getTime())) {
+        return 'border-gray-300 hover:border-gray-400 bg-gray-300';
+    }
+
+    // O SEGREDO: Zera as horas para ignorar o fuso horário e comparar só o dia
+    hoje.setHours(0, 0, 0, 0);
+    vencimento.setHours(0, 0, 0, 0);
+
+    const diferencaMilisegundos = vencimento.getTime() - hoje.getTime();
+    const diferencaDias = Math.ceil(diferencaMilisegundos / (1000 * 3600 * 24));
+
+    if (diferencaDias < 0) {
+        return 'border-red-500 hover:border-red-600 bg-red-500';
+    }
+
+    if (diferencaDias <= 3) {
+        return 'border-yellow-500 hover:border-yellow-600 bg-yellow-500';
+    }
+
+    return 'border-green-500 hover:border-green-600 bg-green-500';
 }
 
 export default function PacienteClient({ pacientesIniciais }: PacienteClientProps) {
@@ -139,22 +177,30 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                 {/* RESULTADO DA BUSCA / LISTAGEM */}
                 <div className="mt-8 w-full grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {pacientesFiltrados.length > 0 ? (
-                        pacientesFiltrados.map((paciente) => (
-                            <Link key={paciente.id} href={`/paciente/perfil?id=${paciente.id}`} className="h-full block group">
-                                <Card className="border-l-4 border-l-[#1976d2] shadow-md overflow-hidden w-full h-full bg-white transition-all duration-200 hover:shadow-lg hover:border-l-blue-600 cursor-pointer group-hover:-translate-y-1">
-                                    <CardContent className="p-5 flex flex-col gap-1">
-                                        <div className="flex justify-between items-center w-full">
-                                            <h2 className="flex-1 text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{paciente.nome}</h2>
-                                            <span className=" shrink-0  whitespace-nowrap text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Ver perfil</span>
-                                        </div>
-                                        <div className="mt-3 flex flex-col gap-1">
-                                            <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {paciente.cpf}</p>
-                                            <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {paciente.cns}</p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </Link>
-                        ))
+                        pacientesFiltrados.map((paciente) => {
+                            const listaDispensacoes = paciente.dispensacoes || [];    
+                            const ultimaDispensacao = listaDispensacoes.length > 0
+                                ? [...listaDispensacoes].sort((a, b) => new Date(b.data_entrega).getTime() - new Date(a.data_entrega).getTime())[0]
+                                : null;
+
+                            const corAlerta = corVencimento(ultimaDispensacao?.proxima_retirada);
+                            return (
+                                <Link key={paciente.id} href={`/paciente/perfil?id=${paciente.id}`} className="h-full block group">
+                                    <Card className={`border-2 ${corAlerta} rounded-2xl shadow-md overflow-hidden w-full h-full bg-white transition-all duration-200 hover:shadow-lg  cursor-pointer group-hover:-translate-y-1`}>
+                                        <CardContent className="p-5 flex flex-col gap-1">
+                                            <div className="flex justify-between items-center w-full">
+                                                <h2 className="flex-1 text-xl font-bold text-[#003967] uppercase group-hover:text-blue-700 transition-colors">{paciente.nome}</h2>
+                                                <span className=" shrink-0  whitespace-nowrap text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Ver perfil</span>
+                                            </div>
+                                            <div className="mt-3 flex flex-col gap-1">
+                                                <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CPF:</span> {paciente.cpf}</p>
+                                                <p className="text-sm text-gray-600"><span className="font-semibold text-gray-800">CNS:</span> {paciente.cns}</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                            )
+                        })
                     ) : (
                         hasSearched && (
                             <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 font-medium">

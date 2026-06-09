@@ -77,11 +77,11 @@ export default async function AppHome() {
                     },
                     cache: 'no-store'
                 });
-                console.log(response)
-                console.log('-------------------------------------------------')
-                console.log(userInfo)
-                console.log('-------------------------------------------------')
-                console.log(userInfo.id_unidade)
+                // console.log(response)
+                // console.log('-------------------------------------------------')
+                // console.log(userInfo)
+                // console.log('-------------------------------------------------')
+                // console.log(userInfo.id_unidade)
                 
 
                 if (response.ok) {

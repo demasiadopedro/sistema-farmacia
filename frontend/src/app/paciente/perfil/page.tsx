@@ -60,11 +60,38 @@ function formatarData(dataIso: string | null | undefined): string {
     const data = new Date(dataIso);
     return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
 }
+function corVencimento(dataVencimento: string | null | undefined) {
+    if (!dataVencimento || dataVencimento === "-") {
+        return 'border-gray-300 hover:border-gray-400 bg-gray-300';
+    }
 
+    const hoje = new Date();
+    const vencimento = new Date(dataVencimento);
+
+    if (isNaN(vencimento.getTime())) {
+        return 'border-gray-300 hover:border-gray-400 bg-gray-300';
+    }
+
+    hoje.setHours(0, 0, 0, 0);
+    vencimento.setHours(0, 0, 0, 0);
+
+    const diferencaMilisegundos = vencimento.getTime() - hoje.getTime();
+    const diferencaDias = Math.ceil(diferencaMilisegundos / (1000 * 3600 * 24))
+
+    if (diferencaDias < 0) {
+        return 'bg-red-500';
+    }
+
+    if (diferencaDias <= 3) {
+        return 'bg-yellow-500';
+    }
+
+    return 'bg-green-500';
+}
 export default async function PerfilPaciente({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
     // 1. Log inicial para saber se a página ao menos abriu
-    console.log("🔥 [TESTE] A página PerfilPaciente carregou!"); 
-    
+    console.log("🔥 [TESTE] A página PerfilPaciente carregou!");
+
     const params = await searchParams;
     const idParam = params.id;
 
@@ -79,7 +106,7 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
 
     let pacienteDb: PacienteDb | null = null;
     let responseOk = false;
-    
+
     console.log(`[*] Iniciando fetch para o ID: ${idParam}`);
 
     try {
@@ -111,21 +138,27 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
     }
 
     const listaPrescricoes = pacienteDb.prescricaos || [];
-    const remediosMapeados: RemedioFormatado[] = listaPrescricoes.map((prescricao) => {
-        const nomeMedicamento = prescricao.medicamento?.nome || "Medicamento não especificado";
-        const unidade = prescricao.medicamento?.unidade_medida || "UNIDADE";
+
+    const mapaRemedios = new Map<string, RemedioFormatado>();
+
+    listaPrescricoes.forEach((prescricao) => {
+        const nomeMedicamento = prescricao.medicamento?.nome || 'Desconhecido';
+        const unidade = prescricao.medicamento?.unidade_medida || 'S/R';
         const via = prescricao.via_administracao ? ` - Via: ${prescricao.via_administracao}` : "";
-        
-        return {
+
+        mapaRemedios.set(nomeMedicamento, {
             nome: nomeMedicamento,
             dosagem: `${prescricao.quantidade_receitada} ${unidade}${via}`
-        };
+        });
     });
+
+    const remediosMapeados: RemedioFormatado[] = Array.from(mapaRemedios.values())
+
     console.log(pacienteDb)
 
     const listaDispensacoes = pacienteDb.dispensacoes || [];
-    const ultimaDispensacao = listaDispensacoes.length > 0 
-        ? listaDispensacoes.sort((a, b) => new Date(b.data_entrega).getTime() - new Date(a.data_entrega).getTime())[0] 
+    const ultimaDispensacao = listaDispensacoes.length > 0
+        ? listaDispensacoes.sort((a, b) => new Date(b.data_entrega).getTime() - new Date(a.data_entrega).getTime())[0]
         : null;
 
     const paciente = {
@@ -140,6 +173,8 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
         ultimaRetirada: ultimaDispensacao ? formatarData(ultimaDispensacao.data_entrega) : "Nenhuma retirada registrada",
         proximaRetirada: ultimaDispensacao && ultimaDispensacao.proxima_retirada ? formatarData(ultimaDispensacao.proxima_retirada) : "-",
     };
+    const corRetirada = corVencimento(ultimaDispensacao?.proxima_retirada)
+
     return (
         <main className="sm:ml-56 min-h-screen bg-gray-50 flex flex-col">
             <div className="relative flex items-center bg-white border-b border-gray-200 p-4 h-16 shrink-0 shadow-sm z-10">
@@ -164,7 +199,7 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <Card className="lg:col-span-1 shadow-md border-none ring-1 ring-gray-100 bg-white overflow-hidden">
-                        <div className="h-2 w-full bg-[#1976d2]"></div>
+                        <div className={`h-2 w-full ${corRetirada}`}></div>
                         <CardHeader className="pb-4 pt-6 flex flex-col items-center text-center border-b border-gray-100">
                             <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-[#1976d2] shadow-sm">
                                 <User className="w-12 h-12" />
@@ -182,13 +217,26 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
                                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1"><MapPin className="w-3 h-3" /> Endereço</span>
                                 <p className="text-sm text-gray-700 leading-relaxed">{paciente.endereco}</p>
                             </div>
-                            <div className="grid grid-cols-2 gap-1">
-                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Contato:</span>
-                                <p className="text-sm text-gray-700">{paciente.telefone}</p>
-                                <Link href={`https://wa.me/${paciente.telefone}`}>
-                                    <span className="bg-green-500 text-white rounded-2xl w-1"> Falar no WhatsApp</span>
+                            <div className="flex flex-col gap-3 mt-2">
+                                <div className="grid grid-cols-2 gap-1 items-center">
+                                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                                        <Phone className="w-3 h-3" /> Contato:
+                                    </span>
+                                    <p className="text-sm text-gray-700">{paciente.telefone}</p>
+                                </div>
+                                <Link
+                                    href={`https://wa.me/55${paciente.telefone.replace(/\D/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex justify-center items-center bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl w-full transition-colors text-sm gap-1"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+                                    </svg>
+                                    Falar no WhatsApp
                                 </Link>
                             </div>
+
                         </CardContent>
                     </Card>
 
