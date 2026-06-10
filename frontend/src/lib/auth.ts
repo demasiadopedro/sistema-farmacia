@@ -6,7 +6,7 @@ export async function loginAction(formData: FormData) {
     const email = formData.get('email');
     const password = formData.get('password');
     try {
-        const response = await fetch('http://localhost:3333/auth', {
+        const response = await fetch(`${process.env.URL_BACKEND}/auth`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
