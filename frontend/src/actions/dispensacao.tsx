@@ -33,7 +33,7 @@ export async function registrarDispensacaoAction(formData: FormData) {
   const quantidade_solicitada = Number(formData.get("quantidade_entregue"));
 
   try {
-    const prescriptionResponse = await fetch("http://localhost:3333/prescription", {
+    const prescriptionResponse = await fetch(`${process.env.URL_BACKEND}/prescription`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export async function registrarDispensacaoAction(formData: FormData) {
 
     const prescriptionData = await prescriptionResponse.json();
 
-    const dispensationResponse = await fetch("http://localhost:3333/dispensation", {
+    const dispensationResponse = await fetch(`${process.env.URL_BACKEND}/dispensation`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -11,7 +11,7 @@ export async function criarMedicamentoAction(formData: FormData) {
   const forma_farmaceutica = formData.get("forma_farmaceutica");
 
   try {
-    const response = await fetch("http://localhost:3333/remedy", {
+    const response = await fetch(`${process.env.URL_BACKEND}/remedy`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export async function criarLoteAction(formData: FormData) {
   const id_medicamento = formData.get("id_medicamento");
 
   try {
-    const response = await fetch("http://localhost:3333/stock", {
+    const response = await fetch(`${process.env.URL_BACKEND}/stock`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
