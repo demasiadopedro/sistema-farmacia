@@ -11,7 +11,7 @@ export default async function PacientePage() {
     }
     const userInfo = JSON.parse(userInfoCookie);
     const id_unidade = userInfo.id_unidade;
-    const response = await fetch(`http://localhost:3333/pacientes/unidade/${id_unidade}`, {
+    const response = await fetch(`${process.env.URL_BACKEND}/pacientes/unidade/${id_unidade}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

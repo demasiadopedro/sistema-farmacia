@@ -26,7 +26,7 @@ export async function createPacienteAction(data: CreatePacienteData) {
 
         if (!token) return { error: "Usuário não autenticado." };
 
-        const response = await fetch('http://localhost:3333/pacientes', {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export async function getMicroareasAction() {
             return { error: "ID da unidade não vinculado ao usuário." };
         }
 
-        const response = await fetch(`http://localhost:3333/unidade/${unidadeId}/microarea`, {
+        const response = await fetch(`${process.env.URL_BACKEND}/unidade/${unidadeId}/microarea`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`

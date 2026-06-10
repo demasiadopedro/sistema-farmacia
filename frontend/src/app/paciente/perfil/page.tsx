@@ -110,7 +110,7 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
     console.log(`[*] Iniciando fetch para o ID: ${idParam}`);
 
     try {
-        const response = await fetch(`http://localhost:3333/pacientes/${idParam}`, {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/${idParam}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

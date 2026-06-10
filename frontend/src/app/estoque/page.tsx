@@ -25,7 +25,7 @@ export default async function EstoquePage() {
         />;
     }
 
-    const response = await fetch(`http://localhost:3333/stock/unidade/${unidadeId}`, {
+    const response = await fetch(`${process.env.URL_BACKEND}/stock/unidade/${unidadeId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         },

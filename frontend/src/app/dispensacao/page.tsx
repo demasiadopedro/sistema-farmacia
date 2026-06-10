@@ -35,7 +35,7 @@ export default async function DispensacaoPage() {
     const id_unidade = userInfo.id_unidade;
     
     const [pacientesRes, estoqueRes] = await Promise.all([
-        fetch(`http://localhost:3333/pacientes/unidade/${id_unidade}`, {
+        fetch(`${process.env.URL_BACKEND}/pacientes/unidade/${id_unidade}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default async function DispensacaoPage() {
             },
             cache: "no-store"
         }),
-        fetch(`http://localhost:3333/stock/unidade/${id_unidade}`, {
+        fetch(`${process.env.URL_BACKEND}/stock/unidade/${id_unidade}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

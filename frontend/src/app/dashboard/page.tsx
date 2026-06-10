@@ -71,7 +71,7 @@ export default async function AppHome() {
             userName = userInfo.nome || "Usuário"; 
 
             if (userInfo.id_unidade) {
-                const response = await fetch(`http://localhost:3333/dispensation/unidade/${userInfo.id_unidade}`, {
+                const response = await fetch(`${process.env.URL_BACKEND}/dispensation/unidade/${userInfo.id_unidade}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
