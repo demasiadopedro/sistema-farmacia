@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { CreateUnidadeDto } from './dto/create-unidade.dto';
-import { unidade_saude } from '../../generated/prisma/client';
+import { unidade_saude } from '@prisma/client';
 import { UpdateUnidadeDto } from './dto/update-user.dto';
 import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 import { Role } from '@prisma/client';
