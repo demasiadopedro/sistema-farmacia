@@ -13,7 +13,7 @@ import {
     getMicroareasAction,
     CreatePacienteData,
     Microarea
-} from "@/app/actions/paciente";
+} from "@/actions/paciente";
 
 const maskCPF = (value: string) => {
     return value
