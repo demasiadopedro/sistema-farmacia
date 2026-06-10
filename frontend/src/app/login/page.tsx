@@ -26,6 +26,10 @@ export default function Login() {
 
     try {
       const result = await loginAction(data)
+      if (!result) {
+        setError('Nenhuma resposta do servidor.')
+        return
+      }
       if (result.error) {
         setError(result.error)
       } else {
