@@ -8,6 +8,7 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { loginAction } from "@/lib/auth";
+import Logo  from "@/../public/logo_hiperdia.svg"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -50,7 +51,7 @@ export default function Login() {
           {/* Logo */}
           <div className="flex items-center justify-center w-70 md:w-96">
             <Image
-              src="/logo_hiperdia.svg"
+              src={Logo}
               alt="Logo do sistema"
               width={1000}
               height={1000}
