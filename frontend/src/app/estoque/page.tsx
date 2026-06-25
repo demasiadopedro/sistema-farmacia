@@ -36,7 +36,7 @@ export default async function EstoquePage() {
         console.log("[*] ERRO DO NESTJS!!!:", response.status, await response.text());
     }
 
-    const medicamentosResponse = await fetch(`${process.env.URL_BACKEND}remedy`, {
+    const medicamentosResponse = await fetch(`${process.env.URL_BACKEND}/remedy`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     const medicamentos = await medicamentosResponse.json();
