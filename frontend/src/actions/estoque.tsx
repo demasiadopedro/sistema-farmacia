@@ -73,3 +73,38 @@ export async function criarLoteAction(formData: FormData) {
     return { error: "Ocorreu um erro inesperado de conexão." };
   }
 }
+
+export async function atualizarLoteAction(formData: FormData) {
+  const token = (await cookies()).get("session_token")?.value;
+  if (!token) return { error: "Usuário não autenticado." };
+
+  const id_lote = formData.get("id_lote");
+  const lote = formData.get("lote");
+  const quantidade = Number(formData.get("quantidade"));
+  const data_de_validade = new Date(formData.get("data_de_validade") as string).toISOString();
+  const id_medicamento = formData.get("id_medicamento");
+
+  try {
+    const response = await fetch(`${process.env.URL_BACKEND}/stock/${id_lote}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        id_medicamento,
+        lote,
+        quantidade,
+        data_de_validade,
+      }),
+    });
+
+    if (!response.ok) {
+      return { error: "Erro ao atualizar o lote." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Ocorreu um erro inesperado de conexão." };
+  }
+}

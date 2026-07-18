@@ -28,6 +28,7 @@ interface EstoqueClientProps {
 export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }: EstoqueClientProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [itemEditando, setItemEditando] = useState<EstoqueData | null>(null);
 
     const getQuantidadeStatus = (qtd: number) => {
         if (qtd <= 50) return { label: "Crítico", color: "text-red-700 bg-red-100 border-red-200" };
@@ -56,6 +57,21 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
         return nomeMed.includes(busca) || loteMed.includes(busca);
     });
 
+    const handleAbrirModal = () => {
+        setItemEditando(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEditarItem = (item: EstoqueData) => {
+        setItemEditando(item);
+        setIsModalOpen(true);
+    };
+
+    const handleFecharModal = () => {
+        setIsModalOpen(false);
+        setItemEditando(null);
+    };
+
     return (
         <main className="sm:ml-56 min-h-screen bg-gray-50 flex flex-col">
             <div className="relative flex items-center bg-white border-b border-gray-200 p-4 h-16 shrink-0 shadow-sm">
@@ -79,7 +95,7 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
                     </Field>
 
                     <Button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleAbrirModal}
                         className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center w-full md:w-auto shadow-sm transition-colors"
                     >
                         <Plus className="w-5 h-5" />
@@ -141,7 +157,11 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="flex justify-center gap-3">
-                                                        <button className="text-[#1976d2] hover:text-blue-800 transition-colors p-1.5 rounded-md hover:bg-blue-100" title="Editar">
+                                                        <button 
+                                                            onClick={() => handleEditarItem(item)}
+                                                            className="text-[#1976d2] hover:text-blue-800 transition-colors p-1.5 rounded-md hover:bg-blue-100" 
+                                                            title="Editar"
+                                                        >
                                                             <Edit className="w-5 h-5" />
                                                         </button>
                                                         <button className="text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-md hover:bg-red-50" title="Excluir">
@@ -168,23 +188,25 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={handleFecharModal}
                 >
                     <div
                         className="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >   
-                        {/* <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors"
+                        <button
+                            onClick={handleFecharModal}
+                            className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors z-10"
                         >
                             <X className="w-5 h-5" />
-                        </button> */}
+                        </button>
 
                         <div className="p-7">
                             <FormularioLote
                                 medicamentosExistentes={medicamentosExistentes}
-                                onClose={() => setIsModalOpen(false)} />
+                                itemEditando={itemEditando}
+                                onClose={handleFecharModal} 
+                            />
                         </div>
                     </div>
                 </div>

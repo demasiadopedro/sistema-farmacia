@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { criarMedicamentoAction, criarLoteAction } from "../../../actions/estoque";
+import { criarMedicamentoAction, criarLoteAction, atualizarLoteAction } from "../../../actions/estoque";
+import { EstoqueData } from "../EstoqueClient";
 
 export interface MedicamentoOption {
     id: string;
@@ -25,9 +26,10 @@ const FormaFarmaceutica = [
 interface FormularioLoteProps {
     medicamentosExistentes: MedicamentoOption[];
     onClose?: () => void;
+    itemEditando?: EstoqueData | null;
 }
 
-export default function FormularioLote({ medicamentosExistentes }: FormularioLoteProps) {
+export default function FormularioLote({ medicamentosExistentes, onClose, itemEditando }: FormularioLoteProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sucesso, setSucesso] = useState(false);
@@ -44,6 +46,22 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
     const [novoNome, setNovoNome] = useState("");
     const [novaCategoria, setNovaCategoria] = useState("HIPERTENSAO");
     const [novaForma, setNovaForma] = useState("COMPRIMIDO");
+
+    useEffect(() => {
+        if (itemEditando) {
+            setIdMedicamentoSelecionado(itemEditando.id || "");
+            setLote(itemEditando.lote || "");
+            setQuantidade(itemEditando.quantidade.toString());
+            
+            if (itemEditando.data_de_validade) {
+                const data = new Date(itemEditando.data_de_validade).toISOString().split('T')[0];
+                setDataValidade(data);
+            }
+            
+            // Preencher o nome do medicamento na busca
+            setBuscaMedicamento(itemEditando.medicamento?.nome || "");
+        }
+    }, [itemEditando]);
 
     const medicamentosFiltrados = medicamentosExistentes.filter(
         (med) => med.nome.toLowerCase().includes(buscaMedicamento.toLowerCase())
@@ -78,13 +96,25 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
         loteData.append("quantidade", quantidade);
         loteData.append("data_de_validade", dataValidade);
 
-        const resultLote = await criarLoteAction(loteData);
+        if (itemEditando) {
+            loteData.append("id_lote", itemEditando.id);
+            const resultLote = await atualizarLoteAction(loteData);
 
-        if (resultLote.error) {
-            setError(resultLote.error);
+            if (resultLote.error) {
+                setError(resultLote.error);
+            } else {
+                setSucesso(true);
+                setTimeout(() => window.location.reload(), 1500);
+            }
         } else {
-            setSucesso(true);
-            window.location.reload();
+            const resultLote = await criarLoteAction(loteData);
+
+            if (resultLote.error) {
+                setError(resultLote.error);
+            } else {
+                setSucesso(true);
+                window.location.reload();
+            }
         }
 
         setLoading(false);
@@ -92,10 +122,14 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
 
     return (
         <form onSubmit={handleSubmit} className="p-6 rounded-md bg-white grid gap-y-4 max-h-[85vh] overflow-y-auto pr-2">
-            <h2 className="text-xl font-bold mb-1 text-center">Entrada de Estoque</h2>
+            <h2 className="text-xl font-bold mb-1 text-center">
+                {itemEditando ? "Editar Lote" : "Entrada de Estoque"}
+            </h2>
 
             {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
-            {sucesso && <div className="text-green-600 text-sm font-semibold">Lote cadastrado com sucesso!</div>}
+            {sucesso && <div className="text-green-600 text-sm font-semibold">
+                {itemEditando ? "Lote atualizado com sucesso!" : "Lote cadastrado com sucesso!"}
+            </div>}
 
             <div className="space-y-2 relative">
                 <Label className="text-base font-semibold">Medicamento</Label>
@@ -111,11 +145,12 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                             setIdMedicamentoSelecionado("");
                         }
                     }}
-                    onFocus={() => setDropdownAberto(true)}
+                    onFocus={() => !itemEditando && setDropdownAberto(true)}
                     onBlur={() => setTimeout(() => setDropdownAberto(false), 200)}
+                    disabled={itemEditando ? true : false}
                 />
             
-                {dropdownAberto && (
+                {dropdownAberto && !itemEditando && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         
                         {medicamentosFiltrados.length > 0 ? (
@@ -152,7 +187,6 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                 )}
             </div>
 
-            {/* DETALHES DO NOVO MEDICAMENTO */}
             {isNovoMedicamento && (
                 <div className=" p-4 border rounded-md grid gap-y-6 mt-2">
                     <div className="space-y-2 mt-2">
@@ -197,7 +231,6 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                 </div>
             )}
 
-            {/* DADOS DO LOTE */}
             <div className="mt-6 pt-6">
                 <h3 className="text-lg font-bold mb-4 text-slate-800">Dados do Lote</h3>
 
@@ -238,9 +271,25 @@ export default function FormularioLote({ medicamentosExistentes }: FormularioLot
                 />
             </div>
             
-            <Button type="submit" className="w-full h-12 rounded-md mt-8 bg-[#1976d2] hover:bg-[#1565c0] text-white transition-colors text-lg shadow-sm font-semibold" disabled={loading}>
-                {loading ? "Salvando..." : "Registrar Entrada no Estoque"}
-            </Button>
+            <div className="flex gap-2">
+                {onClose && (
+                    <Button 
+                        type="button" 
+                        onClick={onClose}
+                        className="flex-1 h-12 rounded-md mt-8 bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors text-lg font-semibold" 
+                        disabled={loading}
+                    >
+                        Cancelar
+                    </Button>
+                )}
+                <Button 
+                    type="submit" 
+                    className={`${onClose ? 'flex-1' : 'w-full'} h-12 rounded-md mt-8 bg-[#1976d2] hover:bg-[#1565c0] text-white transition-colors text-lg shadow-sm font-semibold`} 
+                    disabled={loading}
+                >
+                    {loading ? "Salvando..." : itemEditando ? "Atualizar Lote" : "Registrar Entrada no Estoque"}
+                </Button>
+            </div>
         </form>
     );
 }
