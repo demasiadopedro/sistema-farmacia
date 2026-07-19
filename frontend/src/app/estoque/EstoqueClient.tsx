@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, Edit, Trash2, AlertTriangle, Info, X } from "lucide-react";
-import FormularioLote, { MedicamentoOption } from "./components/ModalNovoLote";
+import FormularioLote, { MedicamentoOption } from "./components/ModalLote";
 
 export interface EstoqueData {
     id: string;
