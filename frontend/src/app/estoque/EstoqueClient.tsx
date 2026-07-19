@@ -15,6 +15,7 @@ export interface EstoqueData {
     quantidade: number;
     data_de_validade: string | null;
     medicamento?: {
+        id: string;
         nome: string | null;
         unidade_medida: string;
     }

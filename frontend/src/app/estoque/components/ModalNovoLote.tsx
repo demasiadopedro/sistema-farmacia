@@ -49,7 +49,7 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
 
     useEffect(() => {
         if (itemEditando) {
-            setIdMedicamentoSelecionado(itemEditando.id || "");
+            setIdMedicamentoSelecionado(itemEditando.medicamento?.id || "");
             setLote(itemEditando.lote || "");
             setQuantidade(itemEditando.quantidade.toString());
             
