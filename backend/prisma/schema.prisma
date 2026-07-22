@@ -59,6 +59,7 @@ model item_dispensado {
 model estoque {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   lote             String?
+  ativo            Boolean   @default(true)
   quantidade       Int       @default(0)
   data_de_validade DateTime? @db.Date
   id_medicamento   String?   @db.Uuid

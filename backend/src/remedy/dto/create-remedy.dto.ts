@@ -1,7 +1,9 @@
 import { CatergoriasMedicamentos, UnidadeMedida } from '@prisma/client';
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateRemedyDto {
+	@IsString()
+	@IsNotEmpty({ message: 'O nome do medicamento não pode ser vazio.' })
 	nome!: string;
 	@IsEnum(CatergoriasMedicamentos, {
 		message:

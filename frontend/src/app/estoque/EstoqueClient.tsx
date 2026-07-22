@@ -8,6 +8,7 @@ import { Field } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, Edit, Trash2, AlertTriangle, Info, X } from "lucide-react";
 import FormularioLote, { MedicamentoOption } from "./components/ModalLote";
+import { deletarLoteAction } from "@/actions/estoque";
 
 export interface EstoqueData {
     id: string;
@@ -67,6 +68,25 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
         setItemEditando(item);
         setIsModalOpen(true);
     };
+
+    const handleDeletarItem = (item: EstoqueData) => {
+        const confirmacao = window.confirm(`Tem certeza que deseja excluir o lote "${item.lote}" do medicamento "${item.medicamento?.nome}"?`);
+        if (confirmacao) {
+            deletarLoteAction(item.id)
+                .then((resultado) => {
+                    if (resultado.success) {
+                        alert("Lote excluído com sucesso!");
+                        window.location.reload();
+                    } else {
+                        alert(`Erro ao excluir o lote: ${resultado.error}`);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Erro ao excluir o lote:", error);
+                    alert("Ocorreu um erro ao tentar excluir o lote.");
+                });
+        }
+    }
 
     const handleFecharModal = () => {
         setIsModalOpen(false);
@@ -165,7 +185,10 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
                                                         >
                                                             <Edit className="w-5 h-5" />
                                                         </button>
-                                                        <button className="text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-md hover:bg-red-50" title="Excluir">
+                                                        <button 
+                                                            onClick={() => handleDeletarItem(item)}
+                                                            className="text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-md hover:bg-red-50" title="Excluir"
+                                                        >
                                                             <Trash2 className="w-5 h-5" />
                                                         </button>
                                                     </div>

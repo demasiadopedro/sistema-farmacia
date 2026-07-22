@@ -21,7 +21,15 @@ export async function criarMedicamentoAction(formData: FormData) {
     });
 
     if (!response.ok) {
-      return { error: "Erro ao cadastrar o novo medicamento no sistema." };
+      const errorData = await response.json().catch(() => ({}));
+
+      console.log("ERRO REAL:", errorData);
+
+      const errorMessage = Array.isArray(errorData.message)
+        ? errorData.message[0]
+        : errorData.message || "Erro ao cadastrar o novo medicamento no sistema.";
+
+      return { error: errorMessage };
     }
 
     const data = await response.json();
@@ -37,10 +45,10 @@ export async function criarLoteAction(formData: FormData) {
 
   const userInfoString = (await cookies()).get("UserInfo")?.value;
   let id_unidade_saude = "";
-  
+
   if (userInfoString) {
     const userInfo = JSON.parse(userInfoString);
-    id_unidade_saude = userInfo.id_unidade; 
+    id_unidade_saude = userInfo.id_unidade;
   }
 
   const lote = formData.get("lote");
@@ -101,6 +109,28 @@ export async function atualizarLoteAction(formData: FormData) {
 
     if (!response.ok) {
       return { error: "Erro ao atualizar o lote." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Ocorreu um erro inesperado de conexão." };
+  }
+}
+
+export async function deletarLoteAction(id_lote: string) {
+  const token = (await cookies()).get("session_token")?.value;
+  if (!token) return { error: "Usuário não autenticado." };
+
+  try {
+    const response = await fetch(`${process.env.URL_BACKEND}/stock/${id_lote}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      return { error: "Erro ao deletar o lote." };
     }
 
     return { success: true };

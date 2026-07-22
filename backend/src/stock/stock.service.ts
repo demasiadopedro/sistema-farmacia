@@ -17,6 +17,7 @@ export class StockService {
 		return this.prisma.estoque.findMany({
 			where: {
 				id_unidade_saude: id,
+				ativo: true,
 			},
 			include: {
 				medicamento: true,
@@ -54,8 +55,9 @@ export class StockService {
 	async remove(id: string) {
 		await this.findOne(id);
 
-		return this.prisma.estoque.delete({
+		return this.prisma.estoque.update({
 			where: { id },
+			data: { ativo: false },
 		});
 	}
 }

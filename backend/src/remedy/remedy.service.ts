@@ -8,8 +8,16 @@ export class RemedyService {
 	constructor(private readonly prismaService: PrismaService) {}
 
 	async create(createRemedyDto: CreateRemedyDto) {
+		const nome = createRemedyDto.nome.trim();
+		const categoria = createRemedyDto.categoria;
+		const unidade_medida = createRemedyDto.forma_farmaceutica;
+
 		return await this.prismaService.medicamento.create({
-			data: createRemedyDto,
+			data: {
+				nome,
+				categoria,
+				unidade_medida,
+			},
 		});
 	}
 
