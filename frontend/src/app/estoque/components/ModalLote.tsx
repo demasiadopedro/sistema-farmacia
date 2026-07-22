@@ -58,7 +58,6 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
                 setDataValidade(data);
             }
             
-            // Preencher o nome do medicamento na busca
             setBuscaMedicamento(itemEditando.medicamento?.nome || "");
         }
     }, [itemEditando]);
@@ -121,90 +120,118 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
     }
 
     return (
-        <form onSubmit={handleSubmit} className="p-6 rounded-md bg-white grid gap-y-4 max-h-[85vh] overflow-y-auto pr-2">
-            <h2 className="text-xl font-bold mb-1 text-center">
-                {itemEditando ? "Editar Lote" : "Entrada de Estoque"}
-            </h2>
-
-            {error && <div className="text-red-500 text-sm font-semibold">{error}</div>}
-            {sucesso && <div className="text-green-600 text-sm font-semibold">
-                {itemEditando ? "Lote atualizado com sucesso!" : "Lote cadastrado com sucesso!"}
-            </div>}
-
-            <div className="space-y-2 relative">
-                <Label className="text-base font-semibold">Medicamento</Label>
-                <Input 
-                    type="text"
-                    placeholder="Ex: Insulina"
-                    value={buscaMedicamento}
-                    className="h-12 text-base w-full rounded-md"
-                    onChange={(e) => {
-                        setBuscaMedicamento(e.target.value)
-                        setDropdownAberto(true)
-                        if (idMedicamentoSelecionado !== 'NOVO') {
-                            setIdMedicamentoSelecionado("");
-                        }
-                    }}
-                    onFocus={() => !itemEditando && setDropdownAberto(true)}
-                    onBlur={() => setTimeout(() => setDropdownAberto(false), 200)}
-                    disabled={itemEditando ? true : false}
-                />
-            
-                {dropdownAberto && !itemEditando && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        
-                        {medicamentosFiltrados.length > 0 ? (
-                            medicamentosFiltrados.map((med) => (
-                                <div
-                                    key={med.id}
-                                    className="px-4 py-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 text-slate-700"
-                                    onClick={() => {
-                                        setIdMedicamentoSelecionado(med.id);
-                                        setBuscaMedicamento(med.nome);
-                                        setDropdownAberto(false);
-                                    }}
-                                >
-                                    {med.nome}
-                                </div>
-                            ))
-                        ) : (
-                            <div className="px-4 py-3 text-gray-500 italic border-b border-gray-100">
-                                Nenhum medicamento encontrado.
-                            </div>
-                        )}
-                        
-                        <div
-                            className="px-4 py-3 cursor-pointer text-blue-600 font-bold hover:bg-blue-50 bg-gray-50 sticky bottom-0"
-                            onClick={() => {
-                                setIdMedicamentoSelecionado("NOVO");
-                                setBuscaMedicamento("Criando Novo Medicamento..."); 
-                                setDropdownAberto(false);
-                            }}
-                        >
-                            + Cadastrar Novo Medicamento
-                        </div>
-                    </div>
-                )}
+        <form onSubmit={handleSubmit} className="p-6 rounded-lg bg-white grid gap-y-5 max-h-[90vh] overflow-y-auto pr-2">
+            {/* Header */}
+            <div className="flex flex-col gap-2 pb-2 border-b border-gray-100">
+                <h2 className="text-2xl font-bold text-slate-900">
+                    {itemEditando ? "Editar Lote" : "Entrada de Estoque"}
+                </h2>
+                <p className="text-sm text-gray-500">
+                    {itemEditando ? "Atualize os dados do lote de medicamento" : "Registre um novo lote no sistema"}
+                </p>
             </div>
 
+            {/* Mensagens */}
+            {error && (
+                <div className="p-3 rounded-md bg-red-50 border border-red-200 flex gap-2">
+                    <span className="text-red-700 text-sm font-medium">⚠️ {error}</span>
+                </div>
+            )}
+            {sucesso && (
+                <div className="p-3 rounded-md bg-green-50 border border-green-200 flex gap-2">
+                    <span className="text-green-700 text-sm font-medium">✓ {itemEditando ? "Lote atualizado com sucesso!" : "Lote cadastrado com sucesso!"}</span>
+                </div>
+            )}
+
+            {/* Seção de Medicamento */}
+            <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-slate-800">Medicamento</h3>
+                    {!itemEditando && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                            {idMedicamentoSelecionado ? (idMedicamentoSelecionado === "NOVO" ? "Novo" : "Selecionado") : "Obrigatório"}
+                        </span>
+                    )}
+                </div>
+                
+                <div className="relative">
+                    <Input 
+                        type="text"
+                        placeholder="Buscar medicamento..."
+                        value={buscaMedicamento}
+                        className="h-11 text-base w-full rounded-lg border-gray-300 placeholder:text-gray-400"
+                        onChange={(e) => {
+                            setBuscaMedicamento(e.target.value)
+                            setDropdownAberto(true)
+                            if (idMedicamentoSelecionado !== 'NOVO') {
+                                setIdMedicamentoSelecionado("");
+                            }
+                        }}
+                        onFocus={() => !itemEditando && setDropdownAberto(true)}
+                        onBlur={() => setTimeout(() => setDropdownAberto(false), 200)}
+                        disabled={itemEditando ? true : false}
+                    />
+                
+                    {dropdownAberto && !itemEditando && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                            {medicamentosFiltrados.length > 0 ? (
+                                medicamentosFiltrados.map((med) => (
+                                    <div
+                                        key={med.id}
+                                        className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 text-slate-700 text-sm transition-colors"
+                                        onClick={() => {
+                                            setIdMedicamentoSelecionado(med.id);
+                                            setBuscaMedicamento(med.nome);
+                                            setDropdownAberto(false);
+                                        }}
+                                    >
+                                        {med.nome}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="px-4 py-3 text-gray-500 text-sm italic text-center">
+                                    Nenhum medicamento encontrado
+                                </div>
+                            )}
+                            
+                            <div
+                                className="px-4 py-2.5 cursor-pointer text-blue-600 font-semibold hover:bg-blue-50 bg-blue-50 sticky bottom-0 border-t border-gray-100 text-sm transition-colors"
+                                onClick={() => {
+                                    setIdMedicamentoSelecionado("NOVO");
+                                    setBuscaMedicamento(""); 
+                                    setDropdownAberto(false);
+                                }}
+                            >
+                                + Cadastrar Novo Medicamento
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Seção Novo Medicamento */}
             {isNovoMedicamento && (
-                <div className=" p-4 border rounded-md grid gap-y-6 mt-2">
-                    <div className="space-y-2 mt-2">
-                        <Label className="text-base ">Nome do Medicamento</Label>
+                <div className="p-4 border border-blue-200 rounded-lg bg-blue-50 space-y-4">
+                    <h4 className="font-semibold text-blue-900 text-sm flex items-center gap-2">
+                        Informações do Novo Medicamento
+                    </h4>
+                    
+                    <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-slate-700">Nome do Medicamento</Label>
                         <Input
                             placeholder="Ex: Losartana 50mg"
                             value={novoNome}
                             onChange={(e) => setNovoNome(e.target.value)}
                             required={isNovoMedicamento}
-                            className="h-12 text-md w-full rounded-md placeholder:text-black placeholder:font-normal"
+                            className="h-10 text-sm rounded-lg border-gray-300 placeholder:text-gray-400"
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 m">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-base">Categoria</Label>
+                            <Label className="text-sm font-semibold text-slate-700">Categoria</Label>
                             <select
-                                className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 value={novaCategoria}
                                 onChange={(e) => setNovaCategoria(e.target.value)}
                             >
@@ -214,9 +241,9 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-base">Forma Farmacêutica</Label>
+                            <Label className="text-sm font-semibold text-slate-700">Forma Farmacêutica</Label>
                             <select
-                                className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 value={novaForma}
                                 onChange={(e) => setNovaForma(e.target.value)}
                             >
@@ -231,52 +258,53 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
                 </div>
             )}
 
-            <div className="mt-6 pt-6">
-                <h3 className="text-lg font-bold mb-4 text-slate-800">Dados do Lote</h3>
+            {/* Seção Dados do Lote */}
+            <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-slate-800">Dados do Lote</h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <Label className="text-base">Lote</Label>
+                        <Label className="text-sm font-semibold text-slate-700">Número do Lote</Label>
                         <Input
-                            placeholder="Ex: LOT2026-A"
+                            placeholder="LOT2026-A"
                             value={lote}
-                            className="h-12 text-base w-full rounded-md"
+                            className="h-10 text-sm rounded-lg border-gray-300 placeholder:text-gray-400"
                             onChange={(e) => setLote(e.target.value)}
                             required
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-base">Quantidade</Label>
+                        <Label className="text-sm font-semibold text-slate-700">Quantidade</Label>
                         <Input
                             type="number"
-                            placeholder="Ex: 500"
-                            className="h-12 text-base w-full rounded-md"
+                            placeholder="500"
+                            className="h-10 text-sm rounded-lg border-gray-300 placeholder:text-gray-400"
                             value={quantidade}
                             onChange={(e) => setQuantidade(e.target.value)}
                             required
                             min="1"
                         />
                     </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-slate-700">Data de Validade</Label>
+                        <Input
+                            type="date"
+                            className="h-10 text-sm rounded-lg border-gray-300"
+                            value={dataValidade}
+                            onChange={(e) => setDataValidade(e.target.value)}
+                            required
+                        />
+                    </div>
                 </div>
             </div>
-            
-            <div className="space-y-2">
-                <Label className="text-base">Validade</Label>
-                <Input
-                    type="date"
-                    className="h-10 text-base w-full rounded-md"
-                    value={dataValidade}
-                    onChange={(e) => setDataValidade(e.target.value)}
-                    required
-                />
-            </div>
-            
-            <div className="flex gap-2">
+
+            {/* Botões */}
+            <div className="flex gap-3 pt-4 border-t border-gray-100">
                 {onClose && (
                     <Button 
                         type="button" 
                         onClick={onClose}
-                        className="flex-1 h-12 rounded-md mt-8 bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors text-lg font-semibold" 
+                        className="flex-1 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors text-sm font-semibold" 
                         disabled={loading}
                     >
                         Cancelar
@@ -284,10 +312,10 @@ export default function FormularioLote({ medicamentosExistentes, onClose, itemEd
                 )}
                 <Button 
                     type="submit" 
-                    className={`${onClose ? 'flex-1' : 'w-full'} h-12 rounded-md mt-8 bg-[#1976d2] hover:bg-[#1565c0] text-white transition-colors text-lg shadow-sm font-semibold`} 
+                    className={`${onClose ? 'flex-1' : 'w-full'} h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors text-sm font-semibold shadow-sm disabled:opacity-60`} 
                     disabled={loading}
                 >
-                    {loading ? "Salvando..." : itemEditando ? "Atualizar Lote" : "Registrar Entrada no Estoque"}
+                    {loading ? "Salvando..." : itemEditando ? "Atualizar Lote" : "Registrar Entrada"}
                 </Button>
             </div>
         </form>
