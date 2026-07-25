@@ -2,7 +2,7 @@
 
 import "./globals.css";
 import { Open_Sans } from "next/font/google";
-import {  cn  } from "@/lib/utils";
+import {  cn  } from "@/utils/cn";
 
 const openSans = Open_Sans({
   subsets:['latin'],

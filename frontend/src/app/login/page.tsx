@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
-import { loginAction } from "@/lib/auth";
+import { loginAction } from "@/libs/auth";
 import Logo  from "@/../public/logo_hiperdia.svg"
 
 export default function Login() {
