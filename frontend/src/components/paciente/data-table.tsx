@@ -18,7 +18,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useState } from "react";
-import { Paciente } from "./columns";
+import { Paciente } from "@/types/paciente";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]

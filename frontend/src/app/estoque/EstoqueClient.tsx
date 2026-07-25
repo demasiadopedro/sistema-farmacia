@@ -26,7 +26,7 @@ interface EstoqueClientProps {
     estoqueInicial: EstoqueData[];
     medicamentosExistentes: MedicamentoOption[];
 }
-
+ 
 export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }: EstoqueClientProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);

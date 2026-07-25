@@ -4,11 +4,13 @@ import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Plus, X } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import Link from "next/link";
-import { DataTable } from "./data-table";
-import { columns, Paciente } from "./columns";
+import { DataTable } from "@/components/paciente/data-table";
+import { columns } from "@/components/paciente/columns";
+import { Paciente } from "@/types/paciente";
+import ModalCadastroPaciente from "@/components/paciente/modal-paciente-novo";
 
 interface PacienteClientProps {
     pacientesIniciais: Paciente[];
@@ -21,6 +23,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
     const [searchType, setSearchType] = useState("Nome");
     const [pacientesFiltrados, setPacientesFiltrados] = useState<Paciente[]>(pacientesIniciais);
     const [hasSearched, setHasSearched] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     function handleSearch() {
         setHasSearched(true);
@@ -51,6 +54,14 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
             document.removeEventListener("mousedown", handleClickOutside);
         }
     }, [])
+
+    const handleAbrirModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleFecharModal = () => {
+        setIsModalOpen(false);
+    }
 
     return (
         <main className='sm:ml-56 min-h-screen bg-white'>
@@ -107,8 +118,12 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                             <Search />
                         </Button>
 
-                        <Button variant="default" className="bg-[#1976d2] h-full text-white hover:bg-[#1565c0] rounded-lg">
-                            <Link href="/paciente/cadastro" className="font-medium">Cadastrar Paciente</Link>
+                        <Button
+                            onClick={handleAbrirModal}
+                            className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center w-full md:w-auto shadow-sm transition-colors"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Novo Paciente
                         </Button>
                     </Field>
                 </section>
@@ -123,6 +138,29 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                         </div>
                     )}
                 </div>
+                {isModalOpen && (
+                    <div
+                        className="fixed inset-0  z-50 flex items-center justify-center backdrop-blur-sm p-4"
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+                        onClick={handleFecharModal}
+                    >
+                        <div
+                            className="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative max-h-[90vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={handleFecharModal}
+                                className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors z-10"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="p-7">
+                                <ModalCadastroPaciente
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </main>
     )
