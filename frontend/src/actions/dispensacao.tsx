@@ -2,6 +2,31 @@
 
 import { cookies } from "next/headers";
 
+export async function buscarDispensacoesPorUnidadeAction(id_unidade: string) {
+  const token = (await cookies()).get("session_token")?.value;
+  if (!token) return { error: "Usuário não autenticado." };
+
+  try {
+    const response = await fetch(`${process.env.URL_BACKEND}/dispensation/unidade/${id_unidade}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { error: "Erro ao buscar dispensações." };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return { error: "Ocorreu um erro inesperado de conexão." };
+  }
+}
+
 export async function registrarDispensacaoAction(formData: FormData) {
   const token = (await cookies()).get("session_token")?.value;
 

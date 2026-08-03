@@ -83,3 +83,51 @@ export async function getMicroareasAction() {
         return { error: "Erro interno no servidor de interface." };
     }
 }
+
+export async function buscarPacientesPorUnidadeAction(id_unidade: string) {
+    const token = (await cookies()).get('session_token')?.value;
+
+    try {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/unidade/${id_unidade}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            return { error: "Erro ao buscar pacientes." };
+        }
+
+        const pacientes = await response.json();
+        return { data: pacientes };
+    } catch (error) {
+        return { error: "Erro ao buscar pacientes." };
+    }
+}
+
+export async function buscarPacientePorIdAction(id: string) {
+    const token = (await cookies()).get('session_token')?.value;
+
+    try {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            return { error: "Erro ao buscar paciente." };
+        }
+
+        const paciente = await response.json();
+        return { data: paciente };
+    } catch (error) {
+        return { error: "Erro ao buscar paciente." };
+    }
+}

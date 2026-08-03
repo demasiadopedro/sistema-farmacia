@@ -138,3 +138,53 @@ export async function deletarLoteAction(id_lote: string) {
     return { error: "Ocorreu um erro inesperado de conexão." };
   }
 }
+
+export async function buscarEstoquePorUnidadeAction(id_unidade: string) {
+  const token = (await cookies()).get("session_token")?.value;
+  if (!token) return { error: "Usuário não autenticado." };
+
+  try {
+    const response = await fetch(`${process.env.URL_BACKEND}/stock/unidade/${id_unidade}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { error: "Erro ao buscar estoque." };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return { error: "Ocorreu um erro inesperado de conexão." };
+  }
+}
+
+export async function buscarRemediosAction() {
+  const token = (await cookies()).get("session_token")?.value;
+  if (!token) return { error: "Usuário não autenticado." };
+
+  try {
+    const response = await fetch(`${process.env.URL_BACKEND}/remedy`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { error: "Erro ao buscar medicamentos." };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return { error: "Ocorreu um erro inesperado de conexão." };
+  }
+}

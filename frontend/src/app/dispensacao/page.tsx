@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import DispensacaoClient from "./DispensacaoClient";
 import { redirect } from "next/navigation";
+import { buscarPacientesPorUnidadeAction } from "@/actions/paciente";
+import { buscarEstoquePorUnidadeAction } from "@/actions/estoque";
 
 interface EstoqueItemBackend {
   id: string;
@@ -24,7 +26,6 @@ interface MedicamentoAgrupado {
 }
 
 export default async function DispensacaoPage() {
-    const token = (await cookies()).get('session_token')?.value;
     const userInfoCookie = (await cookies()).get('UserInfo')?.value;
 
     if (!userInfoCookie) {
@@ -34,27 +35,13 @@ export default async function DispensacaoPage() {
     const userInfo = JSON.parse(userInfoCookie);
     const id_unidade = userInfo.id_unidade;
     
-    const [pacientesRes, estoqueRes] = await Promise.all([
-        fetch(`${process.env.URL_BACKEND}/pacientes/unidade/${id_unidade}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            cache: "no-store"
-        }),
-        fetch(`${process.env.URL_BACKEND}/stock/unidade/${id_unidade}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            cache: "no-store"
-        })
+    const [pacientesResult, estoqueResult] = await Promise.all([
+        buscarPacientesPorUnidadeAction(id_unidade),
+        buscarEstoquePorUnidadeAction(id_unidade)
     ]);
 
-    const pacientes = pacientesRes.ok ? await pacientesRes.json() : [];
-    const estoqueBruto: EstoqueItemBackend[] = estoqueRes.ok ? await estoqueRes.json() : [];
+    const pacientes = pacientesResult.data || [];
+    const estoqueBruto: EstoqueItemBackend[] = estoqueResult.data || [];
 
     const medicamentosMap = new Map<string, MedicamentoAgrupado>();
 

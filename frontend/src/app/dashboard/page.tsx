@@ -5,6 +5,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import ChartOverview from './components/chart';
 import Retiradas from './components/retiradas';
 import { cookies } from 'next/headers';
+import { buscarDispensacoesPorUnidadeAction } from '@/actions/dispensacao';
 
 export interface MedicamentoData {
     id: string;
@@ -60,32 +61,19 @@ const actionCards = [
 export default async function AppHome() {
     const cookieStore = await cookies();
     const userInfoString = cookieStore.get('UserInfo')?.value;
-    const token = cookieStore.get('session_token')?.value;
     
     let userName = "Usuário";
     let dispensacoes: DispensacaoData[] = [];
 
-    if (userInfoString && token) {
+    if (userInfoString) {
         try {
             const userInfo = JSON.parse(userInfoString);
             userName = userInfo.nome || "Usuário"; 
 
             if (userInfo.id_unidade) {
-                const response = await fetch(`${process.env.URL_BACKEND}/dispensation/unidade/${userInfo.id_unidade}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    cache: 'no-store'
-                });
-                // console.log(response)
-                // console.log('-------------------------------------------------')
-                // console.log(userInfo)
-                // console.log('-------------------------------------------------')
-                // console.log(userInfo.id_unidade)
-                
-
-                if (response.ok) {
-                    dispensacoes = await response.json();
+                const result = await buscarDispensacoesPorUnidadeAction(userInfo.id_unidade);
+                if (result.data) {
+                    dispensacoes = result.data;
                 }
             }
         } catch (error) {

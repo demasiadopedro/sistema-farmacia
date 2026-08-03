@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, MapPin, Phone, Activity, PillBottle, CalendarCheck2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { buscarPacientePorIdAction } from "@/actions/paciente";
 
 interface MedicamentoDb {
     nome: string | null;
@@ -89,44 +90,17 @@ function corVencimento(dataVencimento: string | null | undefined) {
     return 'bg-green-500';
 }
 export default async function PerfilPaciente({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
-    // 1. Log inicial para saber se a página ao menos abriu
-    console.log("🔥 [TESTE] A página PerfilPaciente carregou!");
-
     const params = await searchParams;
     const idParam = params.id;
 
-    console.log("[*] ID recebido da URL:", idParam);
-
     if (!idParam) {
-        console.log("[*] ID vazio! Redirecionando...");
         redirect("/paciente");
     }
 
-    const token = (await cookies()).get('session_token')?.value;
+    const result = await buscarPacientePorIdAction(idParam);
+    const pacienteDb: PacienteDb | null = result.data || null;
 
-    let pacienteDb: PacienteDb | null = null;
-    let responseOk = false;
-
-    console.log(`[*] Iniciando fetch para o ID: ${idParam}`);
-
-    try {
-        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/${idParam}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            cache: "no-store"
-        });
-
-        responseOk = response.ok;
-        if (responseOk) {
-            pacienteDb = await response.json();
-        }
-    } catch (error: unknown) {
-        responseOk = false;
-    }
-    if (!responseOk || !pacienteDb) {
+    if (!pacienteDb) {
         return (
             <div className="p-8 flex flex-col items-center justify-center min-h-screen bg-gray-50">
                 <p className="text-[#003967] font-bold text-xl mb-4">Paciente não encontrado ou erro no servidor.</p>
@@ -153,8 +127,6 @@ export default async function PerfilPaciente({ searchParams }: { searchParams: P
     });
 
     const remediosMapeados: RemedioFormatado[] = Array.from(mapaRemedios.values())
-
-    console.log(pacienteDb)
 
     const listaDispensacoes = pacienteDb.dispensacoes || [];
     const ultimaDispensacao = listaDispensacoes.length > 0
