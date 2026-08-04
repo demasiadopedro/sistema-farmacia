@@ -30,6 +30,7 @@ export async function loginAction(formData: FormData) {
             });
 
             const userProfile = {
+                id: data.user_id,
                 nome: data.nome,
                 email: data.email,
                 role: data.role,

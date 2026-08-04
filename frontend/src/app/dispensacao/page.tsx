@@ -5,24 +5,24 @@ import { buscarPacientesPorUnidadeAction } from "@/actions/paciente";
 import { buscarEstoquePorUnidadeAction } from "@/actions/estoque";
 
 interface EstoqueItemBackend {
-  id: string;
-  lote: string;
-  quantidade: number;
-  data_de_validade: string;
-  id_medicamento: string;
-  id_unidade_saude: string;
-  medicamento: {
     id: string;
-    nome: string;
-    unidade_medida: string;
-    categoria: string;
-  };
+    lote: string;
+    quantidade: number;
+    data_de_validade: string;
+    id_medicamento: string;
+    id_unidade_saude: string;
+    medicamento: {
+        id: string;
+        nome: string;
+        unidade_medida: string;
+        categoria: string;
+    };
 }
 
 interface MedicamentoAgrupado {
-  id: string;
-  nome: string;
-  quantidadeTotal: number;
+    id: string;
+    nome: string;
+    quantidadeTotal: number;
 }
 
 export default async function DispensacaoPage() {
@@ -31,10 +31,11 @@ export default async function DispensacaoPage() {
     if (!userInfoCookie) {
         redirect("/login");
     }
-    
+
     const userInfo = JSON.parse(userInfoCookie);
     const id_unidade = userInfo.id_unidade;
-    
+    const id_usuario = userInfo.id_usuario;
+
     const [pacientesResult, estoqueResult] = await Promise.all([
         buscarPacientesPorUnidadeAction(id_unidade),
         buscarEstoquePorUnidadeAction(id_unidade)
@@ -48,7 +49,7 @@ export default async function DispensacaoPage() {
     estoqueBruto.forEach((item) => {
         if (!item.medicamento || item.quantidade <= 0) return;
         const medId = item.medicamento.id;
-        
+
         if (medicamentosMap.has(medId)) {
             const med = medicamentosMap.get(medId)!;
             med.quantidadeTotal += item.quantidade;
@@ -63,5 +64,5 @@ export default async function DispensacaoPage() {
 
     const medicamentos = Array.from(medicamentosMap.values());
 
-    return <DispensacaoClient pacientes={pacientes} medicamentos={medicamentos} />;
+    return <DispensacaoClient pacientes={pacientes} medicamentos={medicamentos} id_usuario={id_usuario} />;
 }

@@ -34,18 +34,22 @@ export async function registrarDispensacaoAction(formData: FormData) {
     return { error: "Usuário não autenticado." };
   }
 
-  let id_usuario;
-  
+  let id_usuario: string | undefined;
+
   const userInfoString = (await cookies()).get('UserInfo')?.value;
   if (userInfoString) {
     try {
       const userInfo = JSON.parse(userInfoString);
-      id_usuario = userInfo.user.id
-
+      id_usuario = userInfo.id || userInfo.id_usuario;
     } catch (error) {
-      console.error("Erro ao ler o JSON do cookie UserInfo:", error);
+      console.error(error);
     }
   }
+
+  if (!id_usuario) {
+    return { error: "ID do usuário não encontrado. Faça login novamente." };
+  }
+
   const id_paciente = formData.get("id_paciente");
   const id_medicamento = formData.get("id_medicamento");
   const via_administracao = formData.get("via_administracao");

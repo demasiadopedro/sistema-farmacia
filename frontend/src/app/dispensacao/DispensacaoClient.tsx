@@ -17,9 +17,10 @@ const viasAdministracao = [
 interface DispensacaoClientProps {
   pacientes: Paciente[];
   medicamentos: MedicamentoEstoque[];
+  id_usuario: string;
 }
 
-export default function DispensacaoClient({ pacientes = [], medicamentos = [] }: DispensacaoClientProps) {
+export default function DispensacaoClient({ pacientes = [], medicamentos = [], id_usuario }: DispensacaoClientProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usoContinuo, setUsoContinuo] = useState(false);
@@ -75,6 +76,7 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [] }:
     setError(null);
 
     const formData = new FormData();
+    formData.append("id_usuario", id_usuario);
     formData.append("id_paciente", prescricao.id_paciente);
     formData.append("id_medicamento", prescricao.id_medicamento);
     formData.append("via_administracao", prescricao.viaAdministracao);
