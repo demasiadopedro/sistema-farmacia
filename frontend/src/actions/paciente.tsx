@@ -16,7 +16,7 @@ export interface CreatePacienteData {
 
 export interface Microarea {
     id: string;
-    nome: string; 
+    nome: string;
 }
 
 export async function createPacienteAction(data: CreatePacienteData) {
@@ -105,6 +105,30 @@ export async function buscarPacientesPorUnidadeAction(id_unidade: string) {
         return { data: pacientes };
     } catch (error) {
         return { error: "Erro ao buscar pacientes." };
+    }
+}
+
+export async function updatePacienteAction(id: string, data: CreatePacienteData) {
+    const token = (await cookies()).get('session_token')?.value;
+
+    try {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return { error: errorData.message || "Erro ao atualizar paciente." };
+        }
+
+        return { success: true };
+    } catch (error) {
+        return { error: "Erro interno no servidor." };
     }
 }
 

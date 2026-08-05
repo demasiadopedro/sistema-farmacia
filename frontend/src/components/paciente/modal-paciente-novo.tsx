@@ -9,8 +9,10 @@ import {
     createPacienteAction,
     getMicroareasAction,
     CreatePacienteData,
-    Microarea
+    Microarea,
+    updatePacienteAction
 } from "@/actions/paciente";
+import { Paciente } from "@/types/paciente";
 
 const maskCPF = (value: string) => {
     return value
@@ -33,11 +35,12 @@ const maskCNS = (value: string) => {
     return value.replace(/\D/g, "").slice(0, 15);
 };
 
-interface ModalCadastroPacienteProps {
+interface ModalPacienteProps {
     onClose?: () => void;
+    pacienteEditando?: Paciente | null;
 }
 
-export default function ModalCadastroPaciente({ onClose }: ModalCadastroPacienteProps) {
+export default function ModalCadastroPaciente({ onClose, pacienteEditando }: ModalPacienteProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -57,17 +60,24 @@ export default function ModalCadastroPaciente({ onClose }: ModalCadastroPaciente
     });
 
     useEffect(() => {
-        const fetchMicroareas = async () => {
-            const result = await getMicroareasAction();
-            if (result.data) {
-                setMicroareas(result.data);
-            } else {
-                console.error("Não foi possível carregar as microáreas:", result.error);
-            }
-        };
+        if (pacienteEditando) {
+            const dataFormatada = pacienteEditando.data_de_nascimento
+                ? new Date(pacienteEditando.data_de_nascimento).toISOString().split('T')[0]
+                : "";
 
-        fetchMicroareas();
-    }, []);
+            setFormData({
+                nome: pacienteEditando.nome || "",
+                data_nascimento: dataFormatada,
+                cpf: maskCPF(pacienteEditando.cpf || ""),
+                cns: maskCNS(pacienteEditando.cns || ""),
+                telefone: maskPhone(pacienteEditando.telefone || ""),
+                endereco: pacienteEditando.endereco || "",
+                condicao: pacienteEditando.condicao || "",
+                sexo: pacienteEditando.sexo || "",
+                microarea_id: pacienteEditando.microarea_id || "",
+            });
+        }
+    }, [pacienteEditando]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -95,7 +105,14 @@ export default function ModalCadastroPaciente({ onClose }: ModalCadastroPaciente
         };
 
         try {
-            const result = await createPacienteAction(payload);
+            let result;
+
+            if (pacienteEditando) {
+                result = await updatePacienteAction(pacienteEditando.id, payload);
+            } else {
+                result = await createPacienteAction(payload);
+            }
+
 
             if (result.error) {
                 const errorMsg = Array.isArray(result.error) ? result.error.join(', ') : result.error;
@@ -324,18 +341,18 @@ export default function ModalCadastroPaciente({ onClose }: ModalCadastroPaciente
             {/* Botões */}
             <div className="flex gap-3 pt-4 border-t border-gray-100">
                 {onClose && (
-                    <Button 
-                        type="button" 
+                    <Button
+                        type="button"
                         onClick={onClose}
-                        className="flex-1 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors text-sm font-semibold" 
+                        className="flex-1 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors text-sm font-semibold"
                         disabled={loading}
                     >
                         Cancelar
                     </Button>
                 )}
-                <Button 
-                    type="submit" 
-                    className={`${onClose ? 'flex-1' : 'w-full'} h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors text-sm font-semibold shadow-sm disabled:opacity-60`} 
+                <Button
+                    type="submit"
+                    className={`${onClose ? 'flex-1' : 'w-full'} h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors text-sm font-semibold shadow-sm disabled:opacity-60`}
                     disabled={loading}
                 >
                     {loading ? "Salvando..." : "Salvar Paciente"}

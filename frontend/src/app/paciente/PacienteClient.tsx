@@ -17,6 +17,7 @@ interface PacienteClientProps {
 }
 
 export default function PacienteClient({ pacientesIniciais }: PacienteClientProps) {
+
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -24,6 +25,8 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
     const [pacientesFiltrados, setPacientesFiltrados] = useState<Paciente[]>(pacientesIniciais);
     const [hasSearched, setHasSearched] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pacienteEditando, setPacienteEditando] = useState<Paciente | null>(null);
+
 
     function handleSearch() {
         setHasSearched(true);
@@ -56,11 +59,17 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
     }, [])
 
     const handleAbrirModal = () => {
+        setPacienteEditando(null);
         setIsModalOpen(true);
     };
 
     const handleFecharModal = () => {
         setIsModalOpen(false);
+    }
+
+    const handleEditarPaciente = (pacienteEditando: Paciente) => {
+        setPacienteEditando(pacienteEditando);
+        setIsModalOpen(true);
     }
 
     return (
@@ -156,6 +165,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
 
                             <div className="p-7">
                                 <ModalCadastroPaciente
+                                    pacienteEditando={pacienteEditando}
                                 />
                             </div>
                         </div>
