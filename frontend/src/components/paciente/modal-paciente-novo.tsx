@@ -49,7 +49,7 @@ export default function ModalCadastroPaciente({ onClose, pacienteEditando }: Mod
 
     const [formData, setFormData] = useState({
         nome: "",
-        data_nascimento: "",
+        data_de_nascimento: "",
         cpf: "",
         cns: "",
         telefone: "",
@@ -60,6 +60,26 @@ export default function ModalCadastroPaciente({ onClose, pacienteEditando }: Mod
     });
 
     useEffect(() => {
+        async function carregarMicroareas() {
+            try {
+                const response = await getMicroareasAction();
+
+                if (response.error) {
+                    console.error("Erro na busca:", response.error);
+                    return;
+                }
+
+                if (response.data) {
+                    setMicroareas(response.data);
+                }
+            } catch (err) {
+                console.error("Erro inesperado ao buscar microáreas:", err);
+            }
+        }
+        carregarMicroareas();
+    }, []);
+
+    useEffect(() => {
         if (pacienteEditando) {
             const dataFormatada = pacienteEditando.data_de_nascimento
                 ? new Date(pacienteEditando.data_de_nascimento).toISOString().split('T')[0]
@@ -67,7 +87,7 @@ export default function ModalCadastroPaciente({ onClose, pacienteEditando }: Mod
 
             setFormData({
                 nome: pacienteEditando.nome || "",
-                data_nascimento: dataFormatada,
+                data_de_nascimento: dataFormatada,
                 cpf: maskCPF(pacienteEditando.cpf || ""),
                 cns: maskCNS(pacienteEditando.cns || ""),
                 telefone: maskPhone(pacienteEditando.telefone || ""),
@@ -98,7 +118,7 @@ export default function ModalCadastroPaciente({ onClose, pacienteEditando }: Mod
 
         const payload: CreatePacienteData = {
             ...formData,
-            data_nascimento: new Date(formData.data_nascimento).toISOString(),
+            data_de_nascimento: new Date(formData.data_de_nascimento).toISOString(),
             cpf: formData.cpf.replace(/\D/g, ""),
             cns: formData.cns.replace(/\D/g, ""),
             telefone: formData.telefone.replace(/\D/g, "")
@@ -217,11 +237,11 @@ export default function ModalCadastroPaciente({ onClose, pacienteEditando }: Mod
                             Data de Nascimento <span className="text-red-500">*</span>
                         </Label>
                         <Input
-                            id="data_nascimento"
-                            name="data_nascimento"
+                            id="data_de_nascimento"
+                            name="data_de_nascimento"
                             type="date"
                             required
-                            value={formData.data_nascimento}
+                            value={formData.data_de_nascimento}
                             onChange={handleChange}
                             className="h-10 text-sm rounded-lg border-gray-300 text-gray-700"
                         />

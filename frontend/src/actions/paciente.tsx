@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 export interface CreatePacienteData {
     nome: string;
-    data_nascimento: string;
+    data_de_nascimento: string;
     cpf: string;
     cns: string;
     telefone: string;

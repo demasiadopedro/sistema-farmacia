@@ -25,7 +25,7 @@ export class PatientService {
 		const newPatient = await this.prisma.paciente.create({
 			data: {
 				nome: createPatient.nome,
-				data_de_nascimento: createPatient.data_nascimento,
+				data_de_nascimento: createPatient.data_de_nascimento,
 				cpf: createPatient.cpf,
 				cns: createPatient.cns,
 				telefone: createPatient.telefone,

@@ -9,7 +9,7 @@ export class CreatePatientDto {
 	@Type(() => Date)
 	@IsDate()
 	@MaxDate(new Date(), { message: 'data de nascimento invalida' })
-	data_nascimento!: Date;
+	data_de_nascimento!: Date;
 	@IsString()
 	@IsNotEmpty()
 	cpf!: string;
