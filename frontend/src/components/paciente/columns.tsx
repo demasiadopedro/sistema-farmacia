@@ -1,9 +1,16 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Edit } from "lucide-react";
 import Link from "next/link";
 import { Paciente } from "@/types/paciente";
+import { Table } from "../ui/table";
+
+declare module "@tanstack/react-table" {
+    interface TableMeta<TData extends unknown> {
+        handleEditPaciente?: (paciente: Paciente) => void;
+    }
+}
 
 export function obterStatusVencimento(dataVencimento: string | null | undefined) {
     if (!dataVencimento || dataVencimento === "-") {
@@ -104,4 +111,30 @@ export const columns: ColumnDef<Paciente>[] = [
             <span className="text-sm">{row.original.data_de_nascimento || "-"}</span>
         ),
     },
+    {
+        accessorKey: "condicao",
+        header: "COND.",
+        cell: ({ row }) => (
+            <span className="text-sm">{row.original.condicao || "-"}</span>
+        ),
+    },
+    {
+        accessorKey: "Editar",
+        header: "EDITAR",
+        cell: ({ row, table}) => (
+            <button
+                type="button"
+                onClick={(e)=> {
+                    e.stopPropagation();
+                    table.options.meta?.handleEditPaciente?.(row.original)
+                    
+                }}
+                className="text-[#1976d2] hover:text-blue-800 transition-colors p-1.5 rounded-md hover:bg-blue-100"
+                title="Editar"
+            >
+                <Edit className="w-5 h-5" />
+            </button>
+        ),
+    }
+
 ]

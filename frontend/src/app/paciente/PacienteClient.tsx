@@ -140,7 +140,10 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                 {/* RESULTADO DA BUSCA */}
                 <div className="mt-8 w-full">
                     {pacientesFiltrados.length > 0 ? (
-                        <DataTable data={pacientesFiltrados} columns={columns} />
+                        <DataTable data={pacientesFiltrados}
+                            columns={columns}
+                            onEditPaciente={handleEditarPaciente}
+                        />
                     ) : hasSearched && (
                         <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 font-medium">
                             Nenhum paciente encontrado para esta busca.

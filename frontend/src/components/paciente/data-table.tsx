@@ -23,11 +23,13 @@ import { Paciente } from "@/types/paciente";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    onEditPaciente?: (paciente: Paciente) => void;
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    onEditPaciente,
 }: DataTableProps<TData, TValue>) {
     const router = useRouter()
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -38,6 +40,9 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         onSortingChange: setSorting,
         state: { sorting },
+        meta: {
+            handleEditPaciente: onEditPaciente,
+        },
     })
 
     return (
