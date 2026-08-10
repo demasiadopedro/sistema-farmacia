@@ -11,6 +11,7 @@ import { DataTable } from "@/components/paciente/data-table";
 import { columns } from "@/components/paciente/columns";
 import { Paciente } from "@/types/paciente";
 import ModalCadastroPaciente from "@/components/paciente/modal-paciente-novo";
+import PopupDelete from "@/components/paciente/popup-delete";
 
 interface PacienteClientProps {
     pacientesIniciais: Paciente[];
@@ -25,6 +26,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
     const [pacientesFiltrados, setPacientesFiltrados] = useState<Paciente[]>(pacientesIniciais);
     const [hasSearched, setHasSearched] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [pacienteEditando, setPacienteEditando] = useState<Paciente | null>(null);
 
 
@@ -70,6 +72,15 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
     const handleEditarPaciente = (pacienteEditando: Paciente) => {
         setPacienteEditando(pacienteEditando);
         setIsModalOpen(true);
+    }
+
+    const handleDeletePaciente = (paciente: Paciente) => {
+        setPacienteEditando(paciente);
+        setIsDeleteModalOpen(true);
+    }
+    
+    const handleFecharDeleteModal = () => {
+        setIsDeleteModalOpen(false);
     }
 
     return (
@@ -143,6 +154,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                         <DataTable data={pacientesFiltrados}
                             columns={columns}
                             onEditPaciente={handleEditarPaciente}
+                            onDeletePaciente={handleDeletePaciente}
                         />
                     ) : hasSearched && (
                         <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 font-medium">
@@ -150,6 +162,31 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
                         </div>
                     )}
                 </div>
+                {isDeleteModalOpen && (
+                    <div
+                        className="fixed inset-0  z-50 flex items-center justify-center backdrop-blur-sm p-4"
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+                        onClick={handleFecharDeleteModal}
+                    >
+                        <div
+                            className="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative max-h-[90vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={handleFecharDeleteModal}
+                                className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors z-10"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="p-7">
+                                <PopupDelete
+                                    onClose={handleFecharDeleteModal}
+                                    pacienteEditando={pacienteEditando}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {isModalOpen && (
                     <div
                         className="fixed inset-0  z-50 flex items-center justify-center backdrop-blur-sm p-4"

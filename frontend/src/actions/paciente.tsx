@@ -155,3 +155,25 @@ export async function buscarPacientePorIdAction(id: string) {
         return { error: "Erro ao buscar paciente." };
     }
 }
+
+export async function deletePacienteAction(id: string) {
+    const token = (await cookies()).get('session_token')?.value;
+
+    try {
+        const response = await fetch(`${process.env.URL_BACKEND}/pacientes/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (!response.ok) {
+            return { error: "Erro ao deletar paciente." };
+        }
+
+        return { success: true };
+    } catch (error) {
+        return { error: "Erro interno no servidor." };
+    }
+}

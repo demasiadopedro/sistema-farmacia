@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Edit } from "lucide-react";
+import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Paciente } from "@/types/paciente";
 import { Table } from "../ui/table";
@@ -9,6 +9,7 @@ import { Table } from "../ui/table";
 declare module "@tanstack/react-table" {
     interface TableMeta<TData extends unknown> {
         handleEditPaciente?: (paciente: Paciente) => void;
+        handleDeletePaciente?: (paciente: Paciente) => void;
     }
 }
 
@@ -133,6 +134,23 @@ export const columns: ColumnDef<Paciente>[] = [
                 title="Editar"
             >
                 <Edit className="w-5 h-5" />
+            </button>
+        ),
+    },
+    {
+        accessorKey: "Excluir",
+        header: "EXCLUIR",
+        cell: ({ row, table }) => (
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    table.options.meta?.handleDeletePaciente?.(row.original)
+                }}
+                className="text-red-600 hover:text-red-800 transition-colors p-1.5 rounded-md hover:bg-red-100"
+                title="Excluir"
+            >
+                <Trash2 className="w-5 h-5" />
             </button>
         ),
     }
