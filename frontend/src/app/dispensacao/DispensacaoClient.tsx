@@ -5,9 +5,9 @@ import { CheckCircle2, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { registrarDispensacaoAction } from "../../actions/dispensacao";
 import { Paciente, MedicamentoEstoque } from "@/types/dispensacao";
-import { PrescricaoCard } from "@/components/dispensacao/PrescricaoCard";
-import { DispensacaoCard } from "@/components/dispensacao/DispensacaoCard";
-import { SucessoCard } from "@/components/dispensacao/SucessoCard";
+import { PrescricaoCard } from "@/app/dispensacao/components/PrescricaoCard";
+import { DispensacaoCard } from "@/app/dispensacao/components/DispensacaoCard";
+import { SucessoCard } from "@/app/dispensacao/components/SucessoCard";
 
 const viasAdministracao = [
   "Oral", "Injetável", "Sublingual", "Tópica",

@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronDown, Plus, X } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import Link from "next/link";
-import { DataTable } from "@/components/paciente/data-table";
-import { columns } from "@/components/paciente/columns";
-import { Paciente } from "@/types/paciente";
-import ModalCadastroPaciente from "@/components/paciente/modal-paciente-novo";
-import PopupDelete from "@/components/paciente/popup-delete";
+import { DataTable } from "@/app/paciente/components/data-table";
+import { columns } from "@/app/paciente/components/columns";
+import ModalCadastroPaciente from "@/app/paciente/components/modal-paciente-novo";
+import PopupDelete from "@/app/paciente/components/popup-delete";
 
 interface PacienteClientProps {
     pacientesIniciais: Paciente[];
