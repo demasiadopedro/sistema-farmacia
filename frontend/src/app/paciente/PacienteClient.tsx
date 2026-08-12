@@ -6,11 +6,11 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Search, ChevronDown, Plus, X } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import Link from "next/link";
 import { DataTable } from "@/app/paciente/components/data-table";
 import { columns } from "@/app/paciente/components/columns";
 import ModalCadastroPaciente from "@/app/paciente/components/modal-paciente-novo";
 import PopupDelete from "@/app/paciente/components/popup-delete";
+import { Paciente } from "@/types/paciente";
 
 interface PacienteClientProps {
     pacientesIniciais: Paciente[];

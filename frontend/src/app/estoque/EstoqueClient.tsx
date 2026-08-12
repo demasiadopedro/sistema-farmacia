@@ -8,7 +8,7 @@ import { Field } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, Edit, Trash2, AlertTriangle, Info, X } from "lucide-react";
 import FormularioLote, { MedicamentoOption } from "./components/ModalLote";
-import { deletarLoteAction } from "@/actions/estoque";
+import PopupDelete from "./components/popup-delete";
 
 export interface EstoqueData {
     id: string;
@@ -31,6 +31,7 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [itemEditando, setItemEditando] = useState<EstoqueData | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const getQuantidadeStatus = (qtd: number) => {
         if (qtd <= 50) return { label: "Crítico", color: "text-red-700 bg-red-100 border-red-200" };
@@ -70,22 +71,12 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
     };
 
     const handleDeletarItem = (item: EstoqueData) => {
-        const confirmacao = window.confirm(`Tem certeza que deseja excluir o lote "${item.lote}" do medicamento "${item.medicamento?.nome}"?`);
-        if (confirmacao) {
-            deletarLoteAction(item.id)
-                .then((resultado) => {
-                    if (resultado.success) {
-                        alert("Lote excluído com sucesso!");
-                        window.location.reload();
-                    } else {
-                        alert(`Erro ao excluir o lote: ${resultado.error}`);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Erro ao excluir o lote:", error);
-                    alert("Ocorreu um erro ao tentar excluir o lote.");
-                });
-        }
+        setItemEditando(item);
+        setIsDeleteModalOpen(true);
+    };
+    
+    const handleFecharDeleteModal = () => {
+        setIsDeleteModalOpen(false);
     }
 
     const handleFecharModal = () => {
@@ -208,6 +199,32 @@ export default function EstoqueClient({ estoqueInicial, medicamentosExistentes }
                     </div>
                 </Card>
             </div>
+            {isDeleteModalOpen && (
+                <div
+                        className="fixed inset-0  z-50 flex items-center justify-center backdrop-blur-sm p-4"
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+                        onClick={handleFecharDeleteModal}
+                    >
+                        <div
+                            className="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative max-h-[90vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={handleFecharDeleteModal}
+                                className="absolute top-4 right-5 text-gray-400 hover:text-gray-700 transition-colors z-10"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="p-7">
+                                <PopupDelete
+                                    onClose={handleFecharDeleteModal}
+                                    lote={itemEditando}
+                                />
+                            </div>
+                        </div>
+                    </div>
+            )}
+
             {isModalOpen && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
