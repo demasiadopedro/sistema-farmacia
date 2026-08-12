@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, MapPin, Phone, Activity, PillBottle, CalendarCheck2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { buscarPacientePorIdAction } from "@/actions/paciente";
+import { formatarData } from "@/utils/formatters";
 
 interface MedicamentoDb {
     nome: string | null;
@@ -56,11 +57,6 @@ function calcularIdade(dataNascimento: string) {
     return idade;
 }
 
-function formatarData(dataIso: string | null | undefined): string {
-    if (!dataIso) return "Não registrada";
-    const data = new Date(dataIso);
-    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
-}
 function corVencimento(dataVencimento: string | null | undefined) {
     if (!dataVencimento || dataVencimento === "-") {
         return 'border-gray-300 hover:border-gray-400 bg-gray-300';

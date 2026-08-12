@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Paciente } from "@/types/paciente";
-import { Table } from "../ui/table";
+import { maskCPF, formatarData , maskPhone} from "@/utils/formatters";
 
 declare module "@tanstack/react-table" {
     interface TableMeta<TData extends unknown> {
@@ -95,21 +95,21 @@ export const columns: ColumnDef<Paciente>[] = [
         accessorKey: "cpf",
         header: "CPF",
         cell: ({ row }) => (
-            <span className="text-sm">{row.original.cpf}</span>
+            <span className="text-sm">{maskCPF(row.original.cpf)}</span>
         ),
     },
     {
         accessorKey: "telefone",
         header: "TELEFONE",
         cell: ({ row }) => (
-            <span className="text-sm">{row.original.telefone || "-"}</span>
+            <span className="text-sm">{maskPhone(row.original.telefone || "-")}</span>
         ),
     },
     {
         accessorKey: "data_de_nascimento",
         header: "DATA NASC.",
         cell: ({ row }) => (
-            <span className="text-sm">{row.original.data_de_nascimento || "-"}</span>
+            <span className="text-sm">{formatarData(row.original.data_de_nascimento || "-")}</span>
         ),
     },
     {
