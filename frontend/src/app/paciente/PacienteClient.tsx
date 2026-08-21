@@ -92,11 +92,11 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
 
             <div className='relative flex flex-col p-4 min-h-fit'>
                 {/* SEARCH E ÍCONES */}
-                <section className="w-full flex gap-2">
-                    <Field orientation={"horizontal"}>
+                <section className="w-full">
+                    <Field orientation={"horizontal"} className="flex-wrap">
                         <Input
                             type="search"
-                            className="rounded-lg h-10 w-64 border-[#1976d2]"
+                            className="rounded-lg h-10 min-w-0 flex-1 md:w-64 md:flex-none border-[#1976d2]"
                             placeholder={`Buscar por ${searchType}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -139,7 +139,7 @@ export default function PacienteClient({ pacientesIniciais }: PacienteClientProp
 
                         <Button
                             onClick={handleAbrirModal}
-                            className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center w-full md:w-auto shadow-sm transition-colors"
+                            className="bg-[#1976d2] hover:bg-[#1565c0] text-white h-11 px-6 rounded-lg font-medium flex gap-2 items-center basis-full md:basis-auto shadow-sm transition-colors"
                         >
                             <Plus className="w-5 h-5" />
                             Novo Paciente
