@@ -16,6 +16,10 @@ export interface Prescricao {
     medicamentoNome: string;
     viaAdministracao: string;
     quantidade: string;
+  afericaoPressao: boolean;
+  avaliacaoPes: boolean;
+  avaliacaoPeso: boolean;
+  avaliacaoAltura: boolean;
 }
 
 export interface Dispensacao {

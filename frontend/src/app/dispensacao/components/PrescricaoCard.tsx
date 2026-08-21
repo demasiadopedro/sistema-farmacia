@@ -2,7 +2,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ClipboardList } from "lucide-react";
+import { Search, ClipboardList, Check, X } from "lucide-react";
 import { Paciente, MedicamentoEstoque, Prescricao } from "@/types/dispensacao";
 
 interface PrescricaoCardProps {
@@ -197,6 +197,36 @@ export function PrescricaoCard(props: PrescricaoCardProps) {
               >
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${usoContinuo ? "translate-x-5" : ""}`} />
               </button>
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-lg border border-gray-200 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-[#003967]">Avaliações realizadas</p>
+                <p className="text-xs text-gray-500">Informe se cada avaliação foi realizada.</p>
+              </div>
+              {([
+                ["afericaoPressao", "Aferição da pressão"],
+                ["avaliacaoPes", "Avaliação dos pés"],
+                ["avaliacaoPeso", "Avaliação do peso"],
+                ["avaliacaoAltura", "Avaliação da altura"],
+              ] as const).map(([campo, label]) => (
+                <div key={campo} className="flex items-center justify-between gap-4 text-sm text-gray-700">
+                  <span>{label}</span>
+                  <button
+                    type="button"
+                    aria-label={`${label}: ${prescricao[campo] ? "sim" : "não"}`}
+                    aria-pressed={prescricao[campo]}
+                    onClick={() => setPrescricao((p: Prescricao) => ({ ...p, [campo]: !p[campo] }))}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+                      prescricao[campo]
+                        ? "border-green-200 bg-green-100 text-green-600"
+                        : "border-red-200 bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {prescricao[campo] ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 

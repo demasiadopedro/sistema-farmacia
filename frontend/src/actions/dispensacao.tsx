@@ -55,6 +55,10 @@ export async function registrarDispensacaoAction(formData: FormData) {
   const via_administracao = formData.get("via_administracao");
   const quantidade_receitada = Number(formData.get("quantidade_receitada"));
   const uso_continuo = formData.get("uso_continuo") === "true";
+  const afericao_pressao = formData.get("afericao_pressao") === "true";
+  const avaliacao_pes = formData.get("avaliacao_pes") === "true";
+  const avaliacao_peso = formData.get("avaliacao_peso") === "true";
+  const avaliacao_altura = formData.get("avaliacao_altura") === "true";
 
   const proxima_retirada = formData.get("proxima_retirada")
     ? new Date(formData.get("proxima_retirada") as string).toISOString()
@@ -73,6 +77,10 @@ export async function registrarDispensacaoAction(formData: FormData) {
         uso_continuo,
         via_administracao,
         quantidade_receitada,
+        afericao_pressao,
+        avaliacao_pes,
+        avaliacao_peso,
+        avaliacao_altura,
         id_medicamento,
         id_paciente,
       }),

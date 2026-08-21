@@ -40,6 +40,10 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
     medicamentoNome: "", 
     viaAdministracao: "",
     quantidade: "",
+    afericaoPressao: false,
+    avaliacaoPes: false,
+    avaliacaoPeso: false,
+    avaliacaoAltura: false,
   });
 
   const [dispensacao, setDispensacao] = useState({
@@ -82,6 +86,10 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
     formData.append("via_administracao", prescricao.viaAdministracao);
     formData.append("quantidade_receitada", prescricao.quantidade);
     formData.append("uso_continuo", usoContinuo.toString());
+    formData.append("afericao_pressao", prescricao.afericaoPressao.toString());
+    formData.append("avaliacao_pes", prescricao.avaliacaoPes.toString());
+    formData.append("avaliacao_peso", prescricao.avaliacaoPeso.toString());
+    formData.append("avaliacao_altura", prescricao.avaliacaoAltura.toString());
     formData.append("quantidade_entregue", dispensacao.quantidadeEntregue);
     formData.append("proxima_retirada", dispensacao.proximaRetirada);
 
@@ -102,7 +110,17 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
 
   function resetForm() {
     setStep("prescricao");
-    setPrescricao({ id_paciente: "", id_medicamento: "", medicamentoNome: "", viaAdministracao: "", quantidade: ""});
+    setPrescricao({
+      id_paciente: "",
+      id_medicamento: "",
+      medicamentoNome: "",
+      viaAdministracao: "",
+      quantidade: "",
+      afericaoPressao: false,
+      avaliacaoPes: false,
+      avaliacaoPeso: false,
+      avaliacaoAltura: false,
+    });
     setDispensacao({ dataEntrega: new Date().toISOString().split('T')[0], quantidadeEntregue: "", proximaRetirada: "" });
     setUsoContinuo(false);
     setBuscaPaciente("");
