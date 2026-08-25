@@ -13,6 +13,7 @@ import { DispensationModule } from './dispensation/dispensation.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import jwtConfig from './auth/config/jwt.config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
 	imports: [
@@ -35,8 +36,32 @@ import { ThrottlerModule } from '@nestjs/throttler';
 				limit: 10,
 			},
 		]),
+		LoggerModule.forRoot({
+			pinoHttp: {
+				transport: {
+
+					target: process.env.NODE_ENV !== 'production' ? 'pino-pretty' : 'pino-http',
+
+					options: {
+
+						colorize: true,
+						translateTime: 'SYS:standard',
+						singleLine: true,
+						ignore: 'pid,hostname',
+					},
+				},
+				serializers: {
+					req: (req) => ({
+						method: req.method,
+						url: req.url,
+						ip: req.headers?.['x-forwarded-for'] || req.remoteAddress,
+					}),
+
+				},
+			},
+		}),
 	],
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
