@@ -37,19 +37,19 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
   const [prescricao, setPrescricao] = useState({
     id_paciente: "",
     id_medicamento: "",
-    medicamentoNome: "", 
+    medicamentoNome: "",
     viaAdministracao: "",
     quantidade: "",
+  });
+
+  const [dispensacao, setDispensacao] = useState({
+    dataEntrega: new Date().toISOString().split("T")[0],
+    quantidadeEntregue: "",
+    proximaRetirada: "",
     afericaoPressao: false,
     avaliacaoPes: false,
     avaliacaoPeso: false,
     avaliacaoAltura: false,
-  });
-
-  const [dispensacao, setDispensacao] = useState({
-    dataEntrega: new Date().toISOString().split('T')[0],
-    quantidadeEntregue: "",
-    proximaRetirada: "",
   });
 
   useEffect(() => {
@@ -68,9 +68,10 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
   function handlePrescricaoSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!prescricao.id_paciente || !prescricao.id_medicamento) {
-        setError("Por favor, selecione um paciente e um medicamento válidos da lista.");
-        return;
+      setError("Por favor, selecione um paciente e um medicamento válidos da lista.");
+      return;
     }
+    setError(null);
     setStep("dispensacao");
   }
 
@@ -86,22 +87,22 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
     formData.append("via_administracao", prescricao.viaAdministracao);
     formData.append("quantidade_receitada", prescricao.quantidade);
     formData.append("uso_continuo", usoContinuo.toString());
-    formData.append("afericao_pressao", prescricao.afericaoPressao.toString());
-    formData.append("avaliacao_pes", prescricao.avaliacaoPes.toString());
-    formData.append("avaliacao_peso", prescricao.avaliacaoPeso.toString());
-    formData.append("avaliacao_altura", prescricao.avaliacaoAltura.toString());
     formData.append("quantidade_entregue", dispensacao.quantidadeEntregue);
     formData.append("proxima_retirada", dispensacao.proximaRetirada);
+    formData.append("afericao_pressao", dispensacao.afericaoPressao.toString());
+    formData.append("avaliacao_pes", dispensacao.avaliacaoPes.toString());
+    formData.append("avaliacao_peso", dispensacao.avaliacaoPeso.toString());
+    formData.append("avaliacao_altura", dispensacao.avaliacaoAltura.toString());
 
     try {
       const result = await registrarDispensacaoAction(formData);
-
+      
       if (result?.error) {
         setError(result.error);
       } else {
         setStep("sucesso");
       }
-    } catch (err) {
+    } catch {
       setError("Ocorreu um erro inesperado ao conectar com o servidor.");
     } finally {
       setLoading(false);
@@ -116,12 +117,17 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
       medicamentoNome: "",
       viaAdministracao: "",
       quantidade: "",
+    });
+    setDispensacao({
+      dataEntrega: new Date().toISOString().split("T")[0],
+      quantidadeEntregue: "",
+      proximaRetirada: "",
       afericaoPressao: false,
       avaliacaoPes: false,
       avaliacaoPeso: false,
       avaliacaoAltura: false,
     });
-    setDispensacao({ dataEntrega: new Date().toISOString().split('T')[0], quantidadeEntregue: "", proximaRetirada: "" });
+    
     setUsoContinuo(false);
     setBuscaPaciente("");
     setBuscaMedicamento("");
@@ -129,7 +135,7 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
 
   return (
     <main className="sm:ml-56 min-h-screen bg-white">
-      <div className='relative flex items-center bg-gray-50 border-b border-gray-200 p-4 h-16'>
+      <div className="relative flex items-center bg-gray-50 border-b border-gray-200 p-4 h-16">
         <Sidebar />
         <h1 className="text-xl font-semibold text-[#003967] whitespace-nowrap">
           Dispensação de Medicamentos
@@ -154,53 +160,53 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
 
       <div className="px-6 pb-10 max-w-2xl">
         {error && (
-            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-                {error}
-            </div>
+          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+            {error}
+          </div>
         )}
 
         {step === "prescricao" && (
-            <PrescricaoCard 
-                pacientes={pacientes}
-                medicamentos={medicamentos}
-                prescricao={prescricao}
-                setPrescricao={setPrescricao}
-                handlePrescricaoSubmit={handlePrescricaoSubmit}
-                buscaPaciente={buscaPaciente}
-                setBuscaPaciente={setBuscaPaciente}
-                buscaMedicamento={buscaMedicamento}
-                setBuscaMedicamento={setBuscaMedicamento}
-                usoContinuo={usoContinuo}
-                setUsoContinuo={setUsoContinuo}
-                viasAdministracao={viasAdministracao}
-                dropdownAberto={dropdownAberto}
-                setDropdownAberto={setDropdownAberto}
-                dropdownMedAberto={dropdownMedAberto}
-                setDropdownMedAberto={setDropdownMedAberto}
-                dropdownPacRef={dropdownPacRef}
-                dropdownMedRef={dropdownMedRef}
-            />
+          <PrescricaoCard
+            pacientes={pacientes}
+            medicamentos={medicamentos}
+            prescricao={prescricao}
+            setPrescricao={setPrescricao}
+            handlePrescricaoSubmit={handlePrescricaoSubmit}
+            buscaPaciente={buscaPaciente}
+            setBuscaPaciente={setBuscaPaciente}
+            buscaMedicamento={buscaMedicamento}
+            setBuscaMedicamento={setBuscaMedicamento}
+            usoContinuo={usoContinuo}
+            setUsoContinuo={setUsoContinuo}
+            viasAdministracao={viasAdministracao}
+            dropdownAberto={dropdownAberto}
+            setDropdownAberto={setDropdownAberto}
+            dropdownMedAberto={dropdownMedAberto}
+            setDropdownMedAberto={setDropdownMedAberto}
+            dropdownPacRef={dropdownPacRef}
+            dropdownMedRef={dropdownMedRef}
+          />
         )}
 
         {step === "dispensacao" && (
-            <DispensacaoCard 
-                prescricao={prescricao}
-                dispensacao={dispensacao}
-                setDispensacao={setDispensacao}
-                usoContinuo={usoContinuo}
-                buscaPaciente={buscaPaciente}
-                loading={loading}
-                handleDispensacaoSubmit={handleDispensacaoSubmit}
-                setStep={setStep}
-            />
+          <DispensacaoCard
+            prescricao={prescricao}
+            dispensacao={dispensacao}
+            setDispensacao={setDispensacao}
+            usoContinuo={usoContinuo}
+            buscaPaciente={buscaPaciente}
+            loading={loading}
+            handleDispensacaoSubmit={handleDispensacaoSubmit}
+            setStep={setStep}
+          />
         )}
 
-        {step === "sucesso" && ( 
-            <SucessoCard 
-                prescricao={prescricao}
-                dispensacao={dispensacao}
-                resetForm={resetForm}
-            />
+        {step === "sucesso" && (
+          <SucessoCard
+            prescricao={prescricao}
+            dispensacao={dispensacao}
+            resetForm={resetForm}
+          />
         )}
       </div>
     </main>

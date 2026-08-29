@@ -11,19 +11,20 @@ export interface MedicamentoEstoque {
 }
 
 export interface Prescricao {
-    id_paciente: string;
-    id_medicamento: string;
-    medicamentoNome: string;
-    viaAdministracao: string;
-    quantidade: string;
+  id_paciente: string;
+  id_medicamento: string;
+  medicamentoNome: string;
+  viaAdministracao: string;
+  quantidade: string;
+
+}
+
+export interface Dispensacao {
+  dataEntrega: string;
+  quantidadeEntregue: string;
   afericaoPressao: boolean;
   avaliacaoPes: boolean;
   avaliacaoPeso: boolean;
   avaliacaoAltura: boolean;
-}
-
-export interface Dispensacao {
-    dataEntrega: string;
-    quantidadeEntregue: string;
-    proximaRetirada: string;
+  proximaRetirada: string;
 }

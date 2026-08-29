@@ -15,28 +15,20 @@ export async function buscarDispensacoesPorUnidadeAction(id_unidade: string) {
       },
       cache: "no-store",
     });
-
-    if (!response.ok) {
-      return { error: "Erro ao buscar dispensações." };
-    }
-
+    if (!response.ok) return { error: "Erro ao buscar dispensações." };
     const data = await response.json();
     return { data };
-  } catch (error) {
+  } catch {
     return { error: "Ocorreu um erro inesperado de conexão." };
   }
 }
 
 export async function registrarDispensacaoAction(formData: FormData) {
   const token = (await cookies()).get("session_token")?.value;
-
-  if (!token) {
-    return { error: "Usuário não autenticado." };
-  }
+  if (!token) return { error: "Usuário não autenticado." };
 
   let id_usuario: string | undefined;
-
-  const userInfoString = (await cookies()).get('UserInfo')?.value;
+  const userInfoString = (await cookies()).get("UserInfo")?.value;
   if (userInfoString) {
     try {
       const userInfo = JSON.parse(userInfoString);
@@ -45,10 +37,7 @@ export async function registrarDispensacaoAction(formData: FormData) {
       console.error(error);
     }
   }
-
-  if (!id_usuario) {
-    return { error: "ID do usuário não encontrado. Faça login novamente." };
-  }
+  if (!id_usuario) return { error: "ID do usuário não encontrado. Faça login novamente." };
 
   const id_paciente = formData.get("id_paciente");
   const id_medicamento = formData.get("id_medicamento");
@@ -68,19 +57,12 @@ export async function registrarDispensacaoAction(formData: FormData) {
   try {
     const prescriptionResponse = await fetch(`${process.env.URL_BACKEND}/prescription`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         data_receita: new Date().toISOString(),
         uso_continuo,
         via_administracao,
         quantidade_receitada,
-        afericao_pressao,
-        avaliacao_pes,
-        avaliacao_peso,
-        avaliacao_altura,
         id_medicamento,
         id_paciente,
       }),
@@ -95,10 +77,7 @@ export async function registrarDispensacaoAction(formData: FormData) {
 
     const dispensationResponse = await fetch(`${process.env.URL_BACKEND}/dispensation`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         quantidade_solicitada,
         id_medicamento,
@@ -106,16 +85,20 @@ export async function registrarDispensacaoAction(formData: FormData) {
         id_prescricao: prescriptionData.id,
         id_usuario,
         id_paciente,
+        afericao_pressao,
+        avaliacao_pes,
+        avaliacao_peso,
+        avaliacao_altura,
       }),
     });
-
+    
     if (!dispensationResponse.ok) {
       const errorData = await dispensationResponse.json();
       return { error: `Erro na Dispensação: ${errorData.message}` };
     }
 
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Ocorreu um erro inesperado de conexão." };
   }
 }
