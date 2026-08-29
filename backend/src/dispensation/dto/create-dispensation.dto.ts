@@ -5,6 +5,7 @@ import {
 	IsOptional,
 	IsUUID,
 	IsDateString,
+    IsBoolean,
 } from 'class-validator';
 
 export class CreateDispensationDto {
@@ -17,7 +18,23 @@ export class CreateDispensationDto {
 		message: 'O ID do medicamento é obrigatório para buscar os lotes.',
 	})
 	@IsNotEmpty({ message: 'O medicamento é obrigatório.' })
-	id_medicamento!: string; // O Backend usa isso para achar os lotes!
+	id_medicamento!: string;
+
+	@IsOptional()
+	@IsBoolean()
+	afericao_pressao!: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	avaliacao_pes!: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	avaliacao_peso!: boolean;
+
+	@IsOptional()
+	@IsBoolean()
+	avaliacao_altura!: boolean;
 
 	@IsDateString({}, { message: 'A próxima retirada deve ser uma data válida.' })
 	@IsOptional()

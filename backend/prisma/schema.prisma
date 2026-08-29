@@ -39,6 +39,11 @@ model dispensacao {
   id_usuario    String? @db.Uuid
   id_paciente   String? @db.Uuid
 
+  afericao_pressao Boolean? @default(false)
+  avaliacao_pes Boolean? @default(false)
+  avaliacao_Ppso Boolean? @default(false)
+  avaliacao_altura Boolean? @default(false)
+
   prescricao prescricao? @relation(fields: [id_prescricao], references: [id])
   usuario    usuario?    @relation(fields: [id_usuario], references: [id])
   paciente   paciente?   @relation(fields: [id_paciente], references: [id])

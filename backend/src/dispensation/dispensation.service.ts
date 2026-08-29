@@ -57,6 +57,7 @@ export class DispensationService {
 						id_prescricao: dto.id_prescricao,
 						id_usuario: dto.id_usuario,
 						id_paciente: dto.id_paciente,
+						
 					},
 				});
 
