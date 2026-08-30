@@ -134,7 +134,7 @@ export default function DispensacaoClient({ pacientes = [], medicamentos = [], i
   }
 
   return (
-    <main className="sm:ml-56 min-h-screen bg-white">
+    <main className="sm:ml-56 min-h-screen  bg-white">
       <div className="relative flex items-center bg-gray-50 border-b border-gray-200 p-4 h-16">
         <Sidebar />
         <h1 className="text-xl font-semibold text-[#003967] whitespace-nowrap">

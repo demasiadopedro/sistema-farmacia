@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUnidadeDto } from './dto/create-unidade.dto';
-import { unidade_saude } from '@prisma/client';
+import { microarea, unidade_saude } from '@prisma/client';
 import { UpdateUnidadeDto } from './dto/update-user.dto';
 import { TokenPayloadDto } from '../auth/dto/token-payload.dto';
 import { Role } from '@prisma/client';
@@ -20,7 +20,7 @@ export class UnidadeService {
 		throw new NotFoundException('Nao Foi possivel encontrar');
 	}
 
-	async buscarTodos() {
+	async buscarTodos(): Promise<unidade_saude[]> {
 		return this.prisma.unidade_saude.findMany();
 	}
 
@@ -40,24 +40,25 @@ export class UnidadeService {
 		return newUnidade;
 	}
 
-	async buscarUnidade(idParam: string) {
+	async buscarUnidade(idParam: string): Promise<unidade_saude> {
 		const busca = { where: { id: idParam } };
 		const unidade = await this.prisma.unidade_saude.findUnique(busca);
 		if (!unidade) return this.throwNotFound();
 		return unidade;
 	}
 
-	async deleteUnidade(idParam: string) {
+	async deleteUnidade(idParam: string):Promise<unidade_saude> {
 		const unidade = await this.buscarUnidade(idParam);
 		if (!unidade) this.throwNotFound();
-		await this.prisma.unidade_saude.delete({ where: { id: idParam } });
+		return this.prisma.unidade_saude.delete({ where: { id: idParam } });
+
 	}
 
 	async updateUnidade(
 		id: string,
 		updateUnidade: UpdateUnidadeDto,
 		token: TokenPayloadDto,
-	) {
+	): Promise<unidade_saude>{
 		const user = await this.prisma.usuario.findUnique({
 			where: { id: token.sub },
 		});
@@ -79,7 +80,7 @@ export class UnidadeService {
 	async criarMicroarea(
 		unidadeId: string,
 		createMicroareaDto: CreateMicroareaDto,
-	) {
+	): Promise<microarea> {
 		await this.buscarUnidade(unidadeId);
 
 		return this.prisma.microarea.create({
@@ -90,7 +91,7 @@ export class UnidadeService {
 		});
 	}
 
-	async buscarTodasMicroareasDaUnidade(unidadeId: string) {
+	async buscarTodasMicroareasDaUnidade(unidadeId: string): Promise<microarea[]> {
 		await this.buscarUnidade(unidadeId);
 
 		return this.prisma.microarea.findMany({
@@ -114,7 +115,7 @@ export class UnidadeService {
 		unidadeId: string,
 		microareaId: string,
 		updateMicroareaDto: UpdateMicroareaDto,
-	) {
+	): Promise<microarea> {
 		await this.buscarMicroareaPorId(unidadeId, microareaId);
 
 		return this.prisma.microarea.update({
@@ -123,10 +124,10 @@ export class UnidadeService {
 		});
 	}
 
-	async deletarMicroarea(unidadeId: string, microareaId: string) {
+	async deletarMicroarea(unidadeId: string, microareaId: string): Promise<microarea> {
 		await this.buscarMicroareaPorId(unidadeId, microareaId);
 
-		await this.prisma.microarea.delete({
+		return this.prisma.microarea.delete({
 			where: { id: microareaId },
 		});
 	}
