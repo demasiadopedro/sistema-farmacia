@@ -66,7 +66,7 @@ export default function CadastroPaciente() {
 
         const payload: CreatePacienteData = {
             ...formData,
-            data_nascimento: new Date(formData.data_nascimento).toISOString(),
+            data_de_nascimento: new Date(formData.data_nascimento).toISOString(),
             cpf: formData.cpf.replace(/\D/g, ""),
             cns: formData.cns.replace(/\D/g, ""),
             telefone: formData.telefone.replace(/\D/g, "")
